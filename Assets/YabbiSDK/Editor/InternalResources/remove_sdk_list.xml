@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items>
+    <item>
+        <filter>^((?!InternalResources).)*$</filter>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>YabbiSDK unity interface</name>
+        <path>YabbiSDK</path>
+    </item>
+    <item>
+        <check_if_empty>true</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>YabbiSDK unity interface</name>
+        <path>YabbiSDK</path>
+    </item>
+    <item>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>YabbiSDK unity interface</name>
+        <path>YabbiSDK</path>
+        <perform_only_if_total_remove>true</perform_only_if_total_remove>
+    </item>
+    <item>
+        <filter>^YabbiSDK.*</filter>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>YabbiSDK Dependencies</name>
+        <path>Editor</path>
+    </item>
+    <item>
+        <check_if_empty>true</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>YabbiSDK Editor</name>
+        <path>Editor</path>
+    </item>
+    <item>
+        <filter>^((?!InternalResources).)*$</filter>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>SspnetSDK unity interface</name>
+        <path>SspnetSDK</path>
+    </item>
+    <item>
+        <check_if_empty>true</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>SspnetSDK unity interface</name>
+        <path>SspnetSDK</path>
+    </item>
+    <item>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>SspnetSDK unity interface</name>
+        <path>SspnetSDK</path>
+        <perform_only_if_total_remove>true</perform_only_if_total_remove>
+    </item>
+    <item>
+        <filter>^SspnetSDK.*</filter>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>SspnetSDK Dependencies</name>
+        <path>Editor</path>
+    </item>
+    <item>
+        <check_if_empty>true</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>SspnetSDK Editor</name>
+        <path>Editor</path>
+    </item>
+    <item>
+        <filter>SspnetSDK</filter>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>SspnetSDK iOS</name>
+        <path>Plugins/iOS</path>
+    </item>
+
+    <item>
+        <check_if_empty>false</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>Plugins iOS Consent Manager</name>
+        <path>Plugins/iOS/YbiConsentManager</path>
+    </item>
+    <item>
+        <check_if_empty>true</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>Plugins iOS folder</name>
+        <path>Plugins/iOS</path>
+    </item>
+    <item>
+        <filter>
+            (sspnet-)|(sspnet)|(yandex)|(yandex-)|(mintegral)|(mintegral-)
+        </filter>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>SspnetSDK Android</name>
+        <path>Plugins/Android</path>
+    </item>
+    <item>
+        <check_if_empty>true</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>Plugins Android Assets</name>
+        <path>Plugins/Android/assets</path>
+    </item>
+    <item>
+        <check_if_empty>true</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>Plugins Android folder</name>
+        <path>Plugins/Android</path>
+    </item>
+    <item>
+        <check_if_empty>true</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>Assets Plugins</name>
+        <path>Plugins</path>
+    </item>
+    <item>
+        <description>External Dependency Manager is used by many plugins for integrating platform specific
+            libraries and resolving conflicting dependencies. If some of your plugins use Jar
+            Resolver, removing can lead to issues.
+        </description>
+        <is_confirmation_required>true</is_confirmation_required>
+        <name>Jar Resolver</name>
+        <path>ExternalDependencyManager</path>
+    </item>
+</items>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items>
+    <item>
+        <check_if_empty>false</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>ConsentManager iOS</name>
+        <path>Plugins/iOS/Yabbi</path>
+    </item>
+    <item>
+        <check_if_empty>false</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>ConsentManager unfiled</name>
+        <path>SspnetSDK/ConsentManager</path>
+    </item>
+    <item>
+        <check_if_empty>false</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>ConsentManager</name>
+        <path>YabbiSDK/ConsentManager</path>
+    </item>
+</items>
