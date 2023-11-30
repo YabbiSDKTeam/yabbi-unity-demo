@@ -24,7 +24,7 @@ namespace YabbiSDK.Editor.Utils
         [MenuItem("Yabbi/Управление зависимостями")]
         public static void ShowSdkManager()
         {
-            SspnetAdapterManager.ShowSdkManager("https://github.com/YabbiSDKTeam/yabbi-unity-demo/releases/download/version/yabbi-unity-plugin.unitypackage");
+            SspnetAdapterManager.ShowSdkManager("https://sdkpkg.sspnet.tech/unity/yabbi/latest/yabbi-unity-plugin.unitypackage");
         }
 #endif
         
