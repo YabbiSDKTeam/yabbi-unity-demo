@@ -1,15 +1,15 @@
-using SspnetSDK.ConsentManager.Unfiled;
+using SspnetSDK.ConsentManagerSDK.Unfiled;
 
 #if UNITY_ANDROID
-using YabbiSDK.ConsentManager.Platform.Android;
+using YabbiSDK.ConsentManagerSDK.Platform.Android;
 #elif UNITY_IPHONE
-using YabbiSDK.ConsentManager.Platform.iOS;
+using YabbiSDK.ConsentManagerSDK.Platform.iOS;
 #else
-using YabbiSDK.ConsentManager.Platform.Dummy;
+using YabbiSDK.ConsentManagerSDK.Platform.Dummy;
 #endif
 
 
-namespace YabbiSDK.ConsentManager.Platform
+namespace YabbiSDK.ConsentManagerSDK.Platform
 {
     internal static class ConsentManagerClientFactory
     {

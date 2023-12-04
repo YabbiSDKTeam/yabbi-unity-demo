@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace SspnetSDK.ConsentManager.Unfiled
+namespace SspnetSDK.ConsentManagerSDK.Unfiled
 {
     public class ConsentBuilder
     {

@@ -1,14 +1,17 @@
 using System;
+using SspnetSDK.ConsentManagerSDK.Unfiled;
 using UnityEngine;
 using UnityEngine.UI;
 using SspnetSDK.Unfiled;
 using YabbiSDK.Api;
+using YabbiSDK.ConsentManagerSDK.Api;
 
 namespace YabbiSDK.Demo.Scripts
 {
-    public class YabbiDemo : MonoBehaviour, IInterstitialAdListener, IRewardedAdListener
+    public class YabbiDemo : MonoBehaviour, IInterstitialAdListener, IRewardedAdListener, IConsentListener
     {
         public Text logger;
+        private readonly ConsentManager _consentManager = new();
 
         private void Start()
         {
@@ -55,6 +58,7 @@ namespace YabbiSDK.Demo.Scripts
 
         public void ShowConsent()
         {
+            _consentManager.ShowConsentWindow();
         }
 
         private void InitializeSDK()
@@ -67,6 +71,17 @@ namespace YabbiSDK.Demo.Scripts
                 Yabbi.SetUserConsent(true);
                 Yabbi.Initialize("65057899-a16a-4877-989b-38c432a7fa15");
                 
+                _consentManager.SetListener(this);
+                
+                var builder = new ConsentBuilder()
+                    .AppendPolicyURL("https://yabbi.me/privacy-policies")
+                    .AppendGdpr(true)
+                    .AppendBundle("me.yabbi.ads.app")
+                    .AppendName("Example name");
+        
+                _consentManager.RegisterCustomVendor(builder);
+                _consentManager.LoadManager();
+                _consentManager.EnableLog(true);
             }
             catch (Exception error)
             {
@@ -135,27 +150,27 @@ namespace YabbiSDK.Demo.Scripts
             LogEvent("OnRewardedClosed");
         }
 
-        public void onConsentManagerLoaded()
+        public void OnConsentManagerLoaded()
         {
             LogEvent("onConsentManagerLoaded");
         }
 
-        public void onConsentManagerLoadFailed(string error)
+        public void OnConsentManagerLoadFailed(string error)
         {
             LogEvent($"onConsentManagerLoadFailed - {error}");
         }
 
-        public void onConsentWindowShown()
+        public void OnConsentWindowShown()
         {
             LogEvent("onConsentWindowShown");
         }
 
-        public void onConsentManagerShownFailed(string error)
+        public void OnConsentManagerShownFailed(string error)
         {
             LogEvent($"onConsentManagerShownFailed - ${error}");
         }
 
-        public void onConsentWindowClosed(bool hasConsent)
+        public void OnConsentWindowClosed(bool hasConsent)
         {
             Yabbi.SetUserConsent(hasConsent);
             LogEvent($"onConsentWindowClosed - {hasConsent}");

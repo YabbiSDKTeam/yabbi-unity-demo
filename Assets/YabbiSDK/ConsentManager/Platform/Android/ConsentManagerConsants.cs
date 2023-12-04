@@ -1,5 +1,5 @@
 #if UNITY_ANDROID
-namespace YabbiSDK.ConsentManager.Platform.Android
+namespace YabbiSDK.ConsentManagerSDK.Platform.Android
 {
     internal static class ConsentManagerConsants
     {

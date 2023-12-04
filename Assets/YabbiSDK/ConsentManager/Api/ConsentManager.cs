@@ -1,7 +1,7 @@
-using YabbiSDK.ConsentManager.Platform;
-using SspnetSDK.ConsentManager.Unfiled;
+using YabbiSDK.ConsentManagerSDK.Platform;
+using SspnetSDK.ConsentManagerSDK.Unfiled;
 
-namespace YabbiSDK.ConsentManager.Api
+namespace YabbiSDK.ConsentManagerSDK.Api
 {
     public class ConsentManager
     {

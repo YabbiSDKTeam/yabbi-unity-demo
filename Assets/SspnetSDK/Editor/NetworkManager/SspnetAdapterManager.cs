@@ -498,7 +498,7 @@ namespace SspnetSDK.Editor.NetworkManager
                     
                     if (GUILayout.Button(new GUIContent { text = SspnetDependencyUtils.ActionUpdate }, btnFieldWidth))
                     {
-                        this.StartCoroutine(DownloadUnityPlugin(latestVersion));
+                        this.StartCoroutine(DownloadUnityPlugin());
                     }
                     
                     GUI.backgroundColor = defaultColor;
@@ -512,7 +512,7 @@ namespace SspnetSDK.Editor.NetworkManager
             }
         }
         
-        private IEnumerator DownloadUnityPlugin(string version)
+        private IEnumerator DownloadUnityPlugin()
         {
             yield return null;
             var ended = false;
@@ -533,10 +533,9 @@ namespace SspnetSDK.Editor.NetworkManager
                 error = args.Error;
             };
 
-            var source = pluginUrl.Replace("version", $"{version}");
             
-            Debug.LogFormat("Downloading {0} to {1}", source, path);
-            downloader.DownloadFileAsync(new Uri(source), path);
+            Debug.LogFormat("Downloading {0} to {1}", pluginUrl, path);
+            downloader.DownloadFileAsync(new Uri(pluginUrl), path);
             
             
             while (!ended)

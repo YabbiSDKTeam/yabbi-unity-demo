@@ -36,7 +36,7 @@ namespace SspnetSDK.Editor.Utils
             GUILayout.BeginHorizontal();
 
 
-            using (new EditorGUILayout.VerticalScope("box", GUILayout.Width(200), GUILayout.Height(150)))
+            using (new EditorGUILayout.VerticalScope("box", GUILayout.Width(200), GUILayout.Height(180)))
             {
                 LabelField("Android Settings");
                 GUILayout.Space(10);
@@ -68,7 +68,7 @@ namespace SspnetSDK.Editor.Utils
 
             #region iOS Settings
 
-            using (new EditorGUILayout.VerticalScope("box", GUILayout.Width(200), GUILayout.Height(150)))
+            using (new EditorGUILayout.VerticalScope("box", GUILayout.Width(200), GUILayout.Height(180)))
             {
                 LabelField("iOS Settings");
                 GUILayout.Space(10);
@@ -81,28 +81,28 @@ namespace SspnetSDK.Editor.Utils
                     "NSLocationWhenInUseUsageDescription",
                     SspnetSettings.Instance.NSLocationWhenInUseUsageDescription);
 
-                GUILayout.Space(10);
-                if (GUILayout.Button("SKAdNetwork", new GUIStyle(EditorStyles.label)
-                    {
-                        fontSize = 12,
-                        fontStyle = FontStyle.Bold,
-                        fixedHeight = 18
-                    }, GUILayout.ExpandWidth(true)))
-                {
-                    Application.OpenURL("https://developer.apple.com/documentation/storekit/skadnetwork");
-                }
+                // GUILayout.Space(10);
+                // if (GUILayout.Button("SKAdNetwork", new GUIStyle(EditorStyles.label)
+                //     {
+                //         fontSize = 12,
+                //         fontStyle = FontStyle.Bold,
+                //         fixedHeight = 18
+                //     }, GUILayout.ExpandWidth(true)))
+                // {
+                //     Application.OpenURL("https://developer.apple.com/documentation/storekit/skadnetwork");
+                // }
 
-                GetSkaNetworkIds();
-                if (SspnetSettings.Instance.IOSSkAdNetworkItemsList != null &&
-                    SspnetSettings.Instance.IOSSkAdNetworkItemsList.Count > 0)
-                {
-                    SspnetSettings.Instance.IOSSkAdNetworkItemsList = null;
-                    SspnetSettings.Instance.IOSSkAdNetworkItemsList = SKAdNetworkIdentifiers;
-                }
-                else
-                {
-                    SspnetSettings.Instance.IOSSkAdNetworkItemsList = SKAdNetworkIdentifiers;
-                }
+                // GetSkaNetworkIds();
+                // if (SspnetSettings.Instance.IOSSkAdNetworkItemsList != null &&
+                //     SspnetSettings.Instance.IOSSkAdNetworkItemsList.Count > 0)
+                // {
+                //     SspnetSettings.Instance.IOSSkAdNetworkItemsList = null;
+                //     SspnetSettings.Instance.IOSSkAdNetworkItemsList = SKAdNetworkIdentifiers;
+                // }
+                // else
+                // {
+                //     SspnetSettings.Instance.IOSSkAdNetworkItemsList = SKAdNetworkIdentifiers;
+                // }
 
                 GUILayout.Space(12);
             }
@@ -114,38 +114,38 @@ namespace SspnetSDK.Editor.Utils
             SspnetSettings.Instance.SaveAsync();
         }
 
-        private void GetSkaNetworkIds()
-        {
-            SspnetSettings.Instance.IOSSkAdNetworkItems =
-                KeyRow("Add SKAdNetworkItems", SspnetSettings.Instance.IOSSkAdNetworkItems);
-
-            if (SspnetSettings.Instance.IOSSkAdNetworkItems)
-            {
-                SKAdNetworkIdentifiers.Clear();
-
-                var path = $"{SspnetDependencyUtils.InternalResourcesPath}skadnetworkids.json";
-
-                var source = new StreamReader(path);
-                var fileContents = source.ReadToEnd();
-
-                var skaItems =
-                    JsonHelper.FromJson<string>(JsonHelper.fixJson(fileContents));
-                foreach (var skaItem in skaItems)
-                {
-
-                    if (!string.IsNullOrEmpty(skaItem))
-                    {
-                        SKAdNetworkIdentifiers?.Add(skaItem);
-                    }
-                }
-            }
-            else
-            {
-                SKAdNetworkIdentifiers.Clear();
-            }
-
-            
-        }
+        // private void GetSkaNetworkIds()
+        // {
+        //     SspnetSettings.Instance.IOSSkAdNetworkItems =
+        //         KeyRow("Add SKAdNetworkItems", SspnetSettings.Instance.IOSSkAdNetworkItems);
+        //
+        //     if (SspnetSettings.Instance.IOSSkAdNetworkItems)
+        //     {
+        //         SKAdNetworkIdentifiers.Clear();
+        //
+        //         var path = $"{SspnetDependencyUtils.InternalResourcesPath}skadnetworkids.json";
+        //
+        //         var source = new StreamReader(path);
+        //         var fileContents = source.ReadToEnd();
+        //
+        //         var skaItems =
+        //             JsonHelper.FromJson<string>(JsonHelper.fixJson(fileContents));
+        //         foreach (var skaItem in skaItems)
+        //         {
+        //
+        //             if (!string.IsNullOrEmpty(skaItem))
+        //             {
+        //                 SKAdNetworkIdentifiers?.Add(skaItem);
+        //             }
+        //         }
+        //     }
+        //     else
+        //     {
+        //         SKAdNetworkIdentifiers.Clear();
+        //     }
+        //
+        //     
+        // }
 
         private static void LabelField(string label)
         {

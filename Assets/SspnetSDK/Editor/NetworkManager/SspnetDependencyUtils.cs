@@ -19,7 +19,7 @@ namespace SspnetSDK.Editor.NetworkManager
     {
         #region Constants
 
-        public const string PluginRequest = "https://sdkapi.sspnet.tech/api/versions.json";
+        public const string PluginRequest = "https://sdkapi.sspnet.tech/api/versions2.json";
         public const string InternalResourcesPath = "Assets/SspnetSDK/Editor/InternalResources/";
         public const string NetworkConfigsPath = "Assets/SspnetSDK/Editor/NetworkConfigs/";
         public const string PackageName = "Name";

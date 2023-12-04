@@ -1,7 +1,7 @@
 using UnityEngine;
-using SspnetSDK.ConsentManager.Unfiled;
+using SspnetSDK.ConsentManagerSDK.Unfiled;
 
-namespace YabbiSDK.ConsentManager.Platform.Dummy
+namespace YabbiSDK.ConsentManagerSDK.Platform.Dummy
 {
     public class DummyConsentManagerClient : IConsentManagerClient
     {

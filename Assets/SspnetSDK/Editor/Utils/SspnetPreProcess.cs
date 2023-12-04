@@ -115,32 +115,32 @@ namespace SspnetSDK.Editor.Utils
         {
             if (SspnetSettings.Instance.AccessCoarseLocationPermission)
             {
-                if (!CheckContainsPermission(manifestPath, SspnetUnityUtils.CoarseLocation))
-                {
+                // if (!CheckContainsPermission(manifestPath, SspnetUnityUtils.CoarseLocation))
+                // {
                     androidManifest.SetPermission(SspnetUnityUtils.CoarseLocation);
-                }
+                // }
             }
             else
             {
-                if (CheckContainsPermission(manifestPath, SspnetUnityUtils.CoarseLocation))
-                {
+                // if (CheckContainsPermission(manifestPath, SspnetUnityUtils.CoarseLocation))
+                // {
                     androidManifest.RemovePermission(SspnetUnityUtils.CoarseLocation);
-                }
+                // }
             }
 
             if (SspnetSettings.Instance.AccessFineLocationPermission)
             {
-                if (!CheckContainsPermission(manifestPath, SspnetUnityUtils.FineLocation))
-                {
+                // if (!CheckContainsPermission(manifestPath, SspnetUnityUtils.FineLocation))
+                // {
                     androidManifest.SetPermission(SspnetUnityUtils.FineLocation);
-                }
+                // }
             }
             else
             {
-                if (CheckContainsPermission(manifestPath, SspnetUnityUtils.FineLocation))
-                {
+                // if (CheckContainsPermission(manifestPath, SspnetUnityUtils.FineLocation))
+                // {
                     androidManifest.RemovePermission(SspnetUnityUtils.FineLocation);
-                }
+                // }
             }
         }
 
@@ -195,7 +195,8 @@ namespace SspnetSDK.Editor.Utils
     {
         private readonly string mPath;
         protected readonly string AndroidXmlNamespace = "http://schemas.android.com/apk/res/android";
-
+        protected readonly string AndroidXmlToolsNamespace = "http://schemas.android.com/tools";
+        
         protected AndroidXmlDocument(string path)
         {
             mPath = path;
@@ -207,6 +208,7 @@ namespace SspnetSDK.Editor.Utils
 
             var nsMgr = new XmlNamespaceManager(NameTable);
             nsMgr.AddNamespace("android", AndroidXmlNamespace);
+            nsMgr.AddNamespace("tools", AndroidXmlToolsNamespace);
         }
 
         public void Save()
@@ -240,10 +242,27 @@ namespace SspnetSDK.Editor.Utils
         {
             var manifest = SelectSingleNode("/manifest");
             if (manifest == null) return;
-            var child = CreateElement("uses-permission");
-            manifest.AppendChild(child);
+            foreach (XmlNode child in manifest.SelectNodes("uses-permission"))
+            {
+                for (var i = 0; i < child.Attributes?.Count; i++)
+                {
+                    if (child.Attributes[i].Value.Equals(permission))
+                    {
+                        manifest.RemoveChild(child);
+                        // var attr = CreateAttribute("tools", "node", AndroidXmlToolsNamespace);
+                        // attr.Value = "remove";
+                        // child.Attributes.Remove(attr);
+                        // // var attr = CreateAttribute("tools", "node", AndroidXmlToolsNamespace);
+                        // // attr.Value = "remove";
+                        // // child.Attributes.Append(attr);
+                    }
+                }
+            }
+            
+            var newChild = CreateElement("uses-permission");
+            manifest.AppendChild(newChild);
             var newAttribute = CreateAndroidAttribute("name", permission);
-            child.Attributes.Append(newAttribute);
+            newChild.Attributes.Append(newAttribute);
         }
 
         internal void RemovePermission(string permission)
@@ -256,7 +275,9 @@ namespace SspnetSDK.Editor.Utils
                 {
                     if (child.Attributes[i].Value.Equals(permission))
                     {
-                        manifest.RemoveChild(child);
+                        var attr = CreateAttribute("tools", "node", AndroidXmlToolsNamespace);
+                        attr.Value = "remove";
+                        child.Attributes.Append(attr);
                     }
                 }
             }

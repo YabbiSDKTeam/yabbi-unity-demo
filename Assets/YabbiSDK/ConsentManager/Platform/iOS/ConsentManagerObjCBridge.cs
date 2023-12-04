@@ -1,7 +1,7 @@
 #if UNITY_IPHONE
 using System.Runtime.InteropServices;
 
-namespace YabbiSDK.ConsentManager.Platform.iOS
+namespace YabbiSDK.ConsentManagerSDK.Platform.iOS
 {
     internal delegate void ConsentCallbacks();
 

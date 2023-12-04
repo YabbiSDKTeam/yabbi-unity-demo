@@ -1,4 +1,4 @@
-namespace SspnetSDK.ConsentManager.Unfiled
+namespace SspnetSDK.ConsentManagerSDK.Unfiled
 {
     public interface IConsentListener
     {

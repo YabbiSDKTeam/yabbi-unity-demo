@@ -1,4 +1,4 @@
-#if UNITY_IOS || UNITY_EDITOR
+#if UNITY_IOS
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -33,7 +33,7 @@ namespace SspnetSDK.Editor.Utils
             var path = Path.Combine(buildPath, "Info.plist");
             AddNSUserTrackingUsageDescription(path);
             AddNSLocationWhenInUseUsageDescription(path);
-            AddSkAdNetworkIds(buildTarget, buildPath);
+            // AddSkAdNetworkIds(buildTarget, buildPath);
         }
 
         private static void AddSkAdNetworkIds(BuildTarget buildTarget, string buildPath)

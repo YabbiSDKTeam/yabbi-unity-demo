@@ -1,8 +1,8 @@
 #if UNITY_ANDROID
 using UnityEngine;
-using SspnetSDK.ConsentManager.Unfiled;
+using SspnetSDK.ConsentManagerSDK.Unfiled;
 
-namespace YabbiSDK.ConsentManager.Platform.Android
+namespace YabbiSDK.ConsentManagerSDK.Platform.Android
 {
     public class AndroidConsentManagerClient : IConsentManagerClient
     {
