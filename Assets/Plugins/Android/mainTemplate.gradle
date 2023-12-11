@@ -1,10 +1,41 @@
+// Android Resolver Repos Start
+([rootProject] + (rootProject.subprojects as List)).each { project ->
+    project.repositories {
+        def unityProjectPath = $/file:///**DIR_UNITYPROJECT**/$.replace("\\", "/")
+        maven {
+            url "https://maven.google.com"
+        }
+        maven {
+            url "https://sdkpkg.sspnet.tech" // Assets/SspnetSDK/Editor/NetworkConfigs/SspnetCoreDependencies.xml:7, Assets/YabbiSDK/ConsentManager/Editor/NetworkConfigs/ConsentDependencies.xml:6
+        }
+        mavenLocal()
+        mavenCentral()
+    }
+}
+// Android Resolver Repos End
 apply plugin: 'com.android.library'
 **APPLY_PLUGINS**
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+// Android Resolver Dependencies Start
+    implementation 'sspnet.tech.consent:yabbi:1.0.0' // Assets/YabbiSDK/ConsentManager/Editor/NetworkConfigs/ConsentDependencies.xml:3
+    implementation 'sspnet.tech:core:1.0.0' // Assets/SspnetSDK/Editor/NetworkConfigs/SspnetCoreDependencies.xml:4
+// Android Resolver Dependencies End
 **DEPS**}
 
+// Android Resolver Exclusions Start
+android {
+  packagingOptions {
+      exclude ('/lib/arm64-v8a/*' + '*')
+      exclude ('/lib/armeabi/*' + '*')
+      exclude ('/lib/mips/*' + '*')
+      exclude ('/lib/mips64/*' + '*')
+      exclude ('/lib/x86/*' + '*')
+      exclude ('/lib/x86_64/*' + '*')
+  }
+}
+// Android Resolver Exclusions End
 android {
     compileSdkVersion **APIVERSION**
     buildToolsVersion '**BUILDTOOLS**'

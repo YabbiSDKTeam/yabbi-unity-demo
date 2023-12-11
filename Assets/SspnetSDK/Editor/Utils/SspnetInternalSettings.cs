@@ -41,7 +41,7 @@ namespace SspnetSDK.Editor.Utils
                 LabelField("Android Settings");
                 GUILayout.Space(10);
                 HeaderField("AndroidManifest.xml",
-                    "https://mobileadx.gitbook.io/mobileadx/unity-plugin/ustanovka-i-nastroika");
+                    "https://developer.android.com/guide/topics/manifest/manifest-intro");
 
                 SspnetSettings.Instance.AccessCoarseLocationPermission = KeyRow("ACCESS_COARSE_LOCATION",
                     SspnetSettings.Instance.AccessCoarseLocationPermission);
@@ -73,7 +73,7 @@ namespace SspnetSDK.Editor.Utils
                 LabelField("iOS Settings");
                 GUILayout.Space(10);
                 HeaderField("Info.plist",
-                    "https://mobileadx.gitbook.io/mobileadx/unity-plugin/ustanovka-i-nastroika");
+                    "https://developer.apple.com/documentation/bundleresources/information_property_list");
 
                 SspnetSettings.Instance.NSUserTrackingUsageDescription = KeyRow("NSUserTrackingUsageDescription",
                     SspnetSettings.Instance.NSUserTrackingUsageDescription);
@@ -167,7 +167,7 @@ namespace SspnetSDK.Editor.Utils
                     fixedHeight = 18
                 }, GUILayout.Width(200)))
             {
-                Application.OpenURL(url);
+                
             }
 
             GUILayout.Space(2);

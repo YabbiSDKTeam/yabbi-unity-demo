@@ -11,7 +11,7 @@ namespace YabbiSDK.Editor.Utils
         [MenuItem("Yabbi/Документация")]
         public static void OpenDocumentation()
         {
-            Application.OpenURL("https://mobileadx.gitbook.io/mobileadx/unity-plugin");
+            Application.OpenURL("https://yabbi.gitbook.io/yabbi-documentation/unity-plugin");
         }
 
         [MenuItem("Yabbi/Официальный сайт")]
