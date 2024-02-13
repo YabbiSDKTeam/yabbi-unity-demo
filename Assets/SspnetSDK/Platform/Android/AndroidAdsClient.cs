@@ -16,9 +16,9 @@ namespace SspnetSDK.Platform.Android
             return _nativeClass ??= new AndroidJavaClass(AdsConstants.SspnetCore);
         }
         
-        public void Initialize(string publisherID)
+        public void Initialize(string publisherID, IInitializationListener listener)
         {
-            GetCoreClass().CallStatic("initialize", publisherID);
+            GetCoreClass().CallStatic("initialize", publisherID, new InitializationCallbacks(listener));
         }
 
         public bool IsInitialized()

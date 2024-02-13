@@ -2,21 +2,17 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Xml;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using UnityEditor;
 using UnityEngine;
 using File = UnityEngine.Windows.File;
 using UnityEngine.Networking;
 using SspnetSDK.Editor.NetworkManager.Data;
-using SspnetSDK.Editor.NetworkManager;
 using marijnz.EditorCoroutines;
-using Unity.VisualScripting;
+using static System.String;
 
 #pragma warning disable 618
 
@@ -24,122 +20,95 @@ using Unity.VisualScripting;
 
 namespace SspnetSDK.Editor.NetworkManager
 {
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum PlatformSdk
     {
         Android,
-        iOS
+        IOS
     }
-    
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    [SuppressMessage("ReSharper", "NotAccessedVariable")]
-    [SuppressMessage("ReSharper", "CollectionNeverQueried.Local")]
+
+    //
     public class SspnetAdapterManager : EditorWindow
     {
-        public const string PLUGIN_VERSION = "1.0.0";
-
-        #region Dictionaries
-        
-        private SortedDictionary<string, SspnetInternalAdapter> internalDependencies = new();
-        
-        #endregion
+        private const string PluginVersion = "1.1.0";
 
         #region GUIStyles
-        
-        private GUIStyle labelStyle;
-        private GUIStyle headerInfoStyle;
-        private GUIStyle packageInfoStyle;
-        private readonly GUILayoutOption btnFieldWidth = GUILayout.Width(60);
-        
+
+        private GUIStyle _labelStyle;
+        private GUIStyle _headerInfoStyle;
+        private GUIStyle _packageInfoStyle;
+        private readonly GUILayoutOption _btnFieldWidth = GUILayout.Width(60);
+
         #endregion
 
-        private static EditorCoroutines.EditorCoroutine coroutine;
-        
-        private float progress;
-        private float loading;
-        private WebClient downloader;
+        private static EditorCoroutines.EditorCoroutine _coroutine;
 
-        private SspnetResponse _response;
-        
-        private bool _isPluginInfoReady;
-        
-        private Vector2 scrollPosition;
+        private float _progress;
+        private float _loading;
+        private WebClient _downloader;
 
-        private static string pluginUrl;
+        private SdkInfo _sdkInfo;
+        private SdkInfo _localSdkInfo;
+
+
+        private Vector2 _scrollPosition;
+
+        private static string _pluginUrl;
 
         public static void ShowSdkManager(string source)
         {
-            pluginUrl = source;
+            _pluginUrl = source;
             GetWindow(typeof(SspnetAdapterManager),
                 true, "Dependency manager");
         }
-        
+
         private void OnEnable()
         {
-            loading = 0f;
-            coroutine = this.StartCoroutine(GetSDKData());
+            _loading = 0f;
+            _coroutine = this.StartCoroutine(GetSDKData());
         }
-        
+
         private void UpdateWindow()
         {
             Reset();
-            coroutine = this.StartCoroutine(GetSDKData());
+            _coroutine = this.StartCoroutine(GetSDKData());
             GUI.enabled = true;
             AssetDatabase.Refresh();
         }
 
         private void Reset()
         {
-            internalDependencies = new SortedDictionary<string, SspnetInternalAdapter>();
-            
-            if (downloader != null)
+            _localSdkInfo = null;
+
+            if (_downloader != null)
             {
-                downloader.CancelAsync();
+                _downloader.CancelAsync();
                 return;
             }
 
-            if (coroutine != null)
-                this.StopCoroutine(coroutine.routine);
-            if (progress > 0)
+            if (_coroutine != null)
+                this.StopCoroutine(_coroutine.routine);
+            if (_progress > 0)
                 EditorUtility.ClearProgressBar();
-            if (loading > 0)
+            if (_loading > 0)
                 EditorUtility.ClearProgressBar();
 
-            coroutine = null;
-            downloader = null;
+            _coroutine = null;
+            _downloader = null;
 
-            loading = 0f;
-            progress = 0f;
+            _loading = 0f;
+            _progress = 0f;
         }
 
         private IEnumerator GetSDKData()
         {
             yield return null;
 
-            if (!EditorUtility.DisplayCancelableProgressBar(
-                    "Dependency manager",
-                SspnetDependencyUtils.Loading,
-                80f))
+            if (!EditorUtility.DisplayCancelableProgressBar("Dependency manager", SspnetDependencyUtils.Loading, 80f))
             {
             }
 
-            #region Internal
-
-            if (SspnetDependencyUtils.GetInternalDependencyPath() != null)
-            {
-                foreach (var fileInfo in SspnetDependencyUtils.GetInternalDependencyPath())
-                {
-                    if (File.Exists(SspnetDependencyUtils.NetworkConfigsPath + fileInfo.Name))
-                    {
-                        GetInternalDependencies(SspnetDependencyUtils.NetworkConfigsPath + fileInfo.Name);
-                    }
-                }
-            }
-
-            #endregion
-            
             #region Plugin
-            
+
             using (var webRequest = UnityWebRequest.Get(SspnetDependencyUtils.PluginRequest))
             {
                 yield return webRequest.SendWebRequest();
@@ -147,96 +116,191 @@ namespace SspnetSDK.Editor.NetworkManager
                 var page = pages.Length - 1;
                 if (webRequest.isNetworkError)
                 {
-                    Debug.Log(pages[page] + ": Error: " + webRequest.error);
-                    SspnetDependencyUtils.ShowInternalErrorDialog(this, webRequest.error, string.Empty);
+                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                    SspnetDependencyUtils.ShowInternalErrorDialog(this, webRequest.error, Empty);
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(webRequest.downloadHandler.text))
+                    if (IsNullOrEmpty(webRequest.downloadHandler.text))
                     {
-                        SspnetDependencyUtils.ShowInternalErrorDialog(this, "Can't find plugin information",
-                            string.Empty);
+                        SspnetDependencyUtils.ShowInternalErrorDialog(this, "Can't find plugin information", Empty);
                         yield break;
                     }
-            
-                    var response = JsonUtility.FromJson<SspnetResponse>(webRequest.downloadHandler.text);
-                    _response = response;
-                    
-                    if (_response == null)
+
+                    var response = JsonUtility.FromJson<SdkInfo>(webRequest.downloadHandler.text);
+                    _sdkInfo = response;
+
+                    if (_sdkInfo == null)
                     {
-                        SspnetDependencyUtils.ShowInternalErrorDialog(this, "Can't find plugin information",
-                            string.Empty);
+                        SspnetDependencyUtils.ShowInternalErrorDialog(this, "Can't find plugin information", Empty);
                         yield break;
                     }
                 }
             }
-            
+
             #endregion
-            
-            coroutine = null;
-            
-            _isPluginInfoReady = true;
-            
+
+            #region Internal
+
+            var networkDependencies = GetLocalDependencies(SspnetDependencyUtils.NetworkConfigsPath);
+
+            var info = new SdkInfo();
+            var androidPlatformSdkInfo = new PlatformSdkInfo();
+            var iosPlatformSdkInfo = new PlatformSdkInfo();
+
+            if (networkDependencies != null)
+            {
+                foreach (var networkDependencyFile in networkDependencies)
+                {
+                    var path = SspnetDependencyUtils.NetworkConfigsPath + networkDependencyFile.Name;
+                    if (!File.Exists(path)) continue;
+                    if (path.ToLower().Contains("sspnet") && path.ToLower().Contains("core"))
+                    {
+                        var iosAdapterSdkInfo = GetAdapterSdkInfo(path, SspnetDependencyUtils.NetworkConfigsPath,
+                            PlatformSdk.IOS);
+                        var androidAdapterSdkInfo = GetAdapterSdkInfo(path, SspnetDependencyUtils.NetworkConfigsPath,
+                            PlatformSdk.Android);
+
+
+                        androidPlatformSdkInfo.version = androidAdapterSdkInfo.version;
+                        androidPlatformSdkInfo.min_version = androidAdapterSdkInfo.min_version;
+                        androidPlatformSdkInfo.unity_content = androidAdapterSdkInfo.unity_content;
+
+                        iosPlatformSdkInfo.version = iosAdapterSdkInfo.version;
+                        iosPlatformSdkInfo.min_version = iosAdapterSdkInfo.min_version;
+                        iosPlatformSdkInfo.unity_content = iosAdapterSdkInfo.unity_content;
+                    }
+                    else
+                    {
+                        var iosAdapterSdkInfo = GetAdapterSdkInfo(path, SspnetDependencyUtils.NetworkConfigsPath,
+                            PlatformSdk.IOS);
+                        var androidAdapterSdkInfo = GetAdapterSdkInfo(path, SspnetDependencyUtils.NetworkConfigsPath,
+                            PlatformSdk.Android);
+
+                        var adapterName = GetAdapterName(path, SspnetDependencyUtils.NetworkConfigsPath);
+
+                        var externalNetworkDependencies =
+                            GetLocalDependencies(SspnetDependencyUtils.ExternalNetworkDependencies);
+
+                        if (externalNetworkDependencies != null)
+                        {
+                            var externalNetworks =
+                                externalNetworkDependencies.Where(value =>
+                                    value.Name.ToLower().Contains(adapterName.ToLower()));
+
+                            foreach (var fileInfo in externalNetworks)
+                            {
+                                var externalDependencyPath =
+                                    SspnetDependencyUtils.ExternalNetworkDependencies + fileInfo.Name;
+
+                                var androidExternalAdapterSdkInfo = GetAdapterSdkInfo(externalDependencyPath,
+                                    SspnetDependencyUtils.ExternalNetworkDependencies, PlatformSdk.Android);
+                                var iOSExternalAdapterSdkInfo = GetAdapterSdkInfo(externalDependencyPath,
+                                    SspnetDependencyUtils.ExternalNetworkDependencies, PlatformSdk.IOS);
+
+                                iosAdapterSdkInfo.adapters.Add(iOSExternalAdapterSdkInfo);
+                                androidAdapterSdkInfo.adapters.Add(androidExternalAdapterSdkInfo);
+                            }
+                        }
+
+                        androidPlatformSdkInfo.networks.Add(androidAdapterSdkInfo);
+                        iosPlatformSdkInfo.networks.Add(iosAdapterSdkInfo);
+                    }
+                }
+            }
+
+            info.android = androidPlatformSdkInfo;
+            info.ios = iosPlatformSdkInfo;
+            _localSdkInfo = info;
+
+            #endregion
+
+            _coroutine = null;
+
             EditorUtility.ClearProgressBar();
         }
 
-        private void GetInternalDependencies(string dependencyPath)
+        private static FileInfo[] GetLocalDependencies(string path)
         {
-            var networkDependency = new SspnetInternalAdapter(SspnetDependencyUtils.GetConfigName(dependencyPath));
-            
-            XmlUtilities.ParseXmlTextFileElements(dependencyPath,
-                (reader, elementName, _, parentElementName, _) =>
-                {
-                    switch (elementName)
-                    {
-                        case "iosPod" when parentElementName == "iosPods":
-                        {
-                            var podName = reader.GetAttribute("name");
-                            var version = reader.GetAttribute("version");
-                            
-                            if (podName == null || version == null) return false;
-                            
-                            networkDependency.iosVersion = version;
-                            networkDependency.iosUnityContent = SspnetDependencyUtils.GetiOSContent(networkDependency.dependencyPath);
-                            break;
-                        }
-                        case "androidPackage" when parentElementName == "androidPackages":
-                        {
-                            var specName = reader.GetAttribute("spec");
-                            
-                            if (specName == null) return false;
-                            
-                            networkDependency.androidVersion = SspnetDependencyUtils.GetAndroidDependencyVersion(specName);
-                            networkDependency.androidUnityContent = SspnetDependencyUtils.GetAndroidContent(networkDependency.dependencyPath);
-                            break;
-                        }
-                    }
-                    return true;
-                });
-            
-            networkDependency.name = SspnetDependencyUtils.GetDependencyName(dependencyPath);
-
-            if (!string.IsNullOrEmpty(networkDependency.name))
+            try
             {
-                internalDependencies.Add(networkDependency.name, networkDependency);
+                var info = new DirectoryInfo(path);
+                var fileInfo = info.GetFiles();
+                return fileInfo.Length <= 0 ? null : fileInfo.Where(val => !val.Name.Contains("meta")).ToArray();
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
+        private static AdapterSdkInfo GetAdapterSdkInfo(string path, string oldValue, PlatformSdk platformSdk)
+        {
+            var sdkInfo = new AdapterSdkInfo(GetAdapterName(path, oldValue));
+
+            XmlUtilities.ParseXmlTextFileElements(path,
+                (reader, elementName, _, parentElementName, _) =>
+                {
+                    switch (platformSdk)
+                    {
+                        case PlatformSdk.IOS when elementName == "iosPod" && parentElementName == "iosPods":
+                        {
+                            var podName = reader.GetAttribute("name");
+                            var version = reader.GetAttribute("version");
+
+                            if (podName == null || version == null) return false;
+
+                            if (sdkInfo.version != null) break;
+                            sdkInfo.version = version;
+                            sdkInfo.unity_content = SspnetDependencyUtils.GetiOSContent(path);
+                            break;
+                        }
+                        case PlatformSdk.Android when elementName == "androidPackage" &&
+                                                      parentElementName == "androidPackages":
+                        {
+                            var specName = reader.GetAttribute("spec");
+
+                            if (specName == null) return false;
+
+                            if (sdkInfo.version != null) break;
+                            sdkInfo.version = SspnetDependencyUtils.GetAndroidDependencyVersion(specName);
+                            sdkInfo.unity_content = SspnetDependencyUtils.GetAndroidContent(path);
+                            break;
+                        }
+                    }
+
+                    return true;
+                });
+            return sdkInfo;
+        }
+
+        private static string GetAdapterName(string value, string oldValue)
+        {
+            var configName = value.Replace(oldValue, Empty);
+            return configName.Replace("Dependencies.xml", Empty).ToLower();
+        }
+
+        private bool IsSdkInfoReady()
+        {
+            return _sdkInfo != null && _localSdkInfo != null;
+        }
+
+
         private void Awake()
         {
-            labelStyle = new GUIStyle(EditorStyles.label)
+            _labelStyle = new GUIStyle(EditorStyles.label)
             {
                 fontSize = 15,
                 fontStyle = FontStyle.Bold
             };
-            packageInfoStyle = new GUIStyle(EditorStyles.label)
+            _packageInfoStyle = new GUIStyle(EditorStyles.label)
             {
                 fontSize = 12,
                 fontStyle = FontStyle.Normal,
                 fixedHeight = 18
             };
 
-            headerInfoStyle = new GUIStyle(EditorStyles.label)
+            _headerInfoStyle = new GUIStyle(EditorStyles.label)
             {
                 fontSize = 13,
                 fontStyle = FontStyle.Bold,
@@ -246,272 +310,352 @@ namespace SspnetSDK.Editor.NetworkManager
             Reset();
         }
 
+        private static void SetDependenciesHeader(GUIStyle headerInfoStyle, GUILayoutOption btnFieldWidth)
+        {
+            using (new EditorGUILayout.HorizontalScope(GUILayout.ExpandWidth(false)))
+            {
+                GUILayout.Button("Name", headerInfoStyle, GUILayout.Width(150));
+                GUILayout.Space(25);
+                GUILayout.Button("Current Version", headerInfoStyle, GUILayout.Width(120));
+                GUILayout.Space(90);
+                GUILayout.Button("Latest Version", headerInfoStyle);
+                GUILayout.Button("Action", headerInfoStyle, btnFieldWidth);
+                GUILayout.Button(Empty, headerInfoStyle, GUILayout.Width(5));
+            }
+        }
+
         private void OnGUI()
         {
+            if (!IsSdkInfoReady()) return;
+
             minSize = new Vector2(700, 650);
             maxSize = new Vector2(2000, 2000);
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
-                false,
-                false);
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, false, false);
             GUILayout.BeginVertical();
-            
-            
-            if (_isPluginInfoReady)
+
+            #region Plugin
+
+            GUILayout.Space(10);
+            EditorGUILayout.LabelField("Plugin", _labelStyle, GUILayout.Height(20));
+
+            SetDependenciesHeader(_headerInfoStyle, _btnFieldWidth);
+            using (new EditorGUILayout.VerticalScope(SspnetDependencyUtils.BoxStyle))
             {
-                
-                #region Plugin
-                
-                GUILayout.Space(10);
-                EditorGUILayout.LabelField(SspnetDependencyUtils.SspnetUnityPlugin, labelStyle, GUILayout.Height(20));
-                
-                if (_response != null)
+                SetDependencyRow("Plugin", PluginVersion, _sdkInfo.unity.version,
+                    () => AddUpdatePluginActionIfCan(PluginVersion, _sdkInfo.unity.version));
+            }
+
+            #endregion
+
+            #region Android
+
+            GUILayout.Space(10);
+            EditorGUILayout.LabelField("Android", _labelStyle, GUILayout.Height(20));
+            GUILayout.Space(5);
+
+            SetDependenciesHeader(_headerInfoStyle, _btnFieldWidth);
+
+            using (new EditorGUILayout.VerticalScope(SspnetDependencyUtils.BoxStyle))
+            {
+                SetDependencyRow("Core", _localSdkInfo.android.version, _sdkInfo.android.version,
+                    () => AddUpdateCoreActionIfCan(PlatformSdk.Android));
+            }
+
+
+            foreach (var adapterSdkInfo in _sdkInfo.android.networks)
+            {
+                if (_localSdkInfo == null) continue;
+                var localAdapterSdkInfoEnum = _localSdkInfo.android.networks.Where(value =>
+                        string.Equals(value?.name, adapterSdkInfo?.name, StringComparison.CurrentCultureIgnoreCase))
+                    .ToList();
+
+                if (localAdapterSdkInfoEnum.Any())
                 {
-                    using (new EditorGUILayout.VerticalScope(SspnetDependencyUtils.BoxStyle, GUILayout.Height(45)))
+                    var localAdapterSdkInfo = localAdapterSdkInfoEnum.First();
+                    SetDependencyRow(adapterSdkInfo.name, localAdapterSdkInfo.version, adapterSdkInfo.version,
+                        () => AddDependencyActions(localAdapterSdkInfo, adapterSdkInfo,
+                            CreateDependencyPath(adapterSdkInfo, null)));
+                    if (localAdapterSdkInfo.version == null) continue;
+                    foreach (var adapter in adapterSdkInfo.adapters)
                     {
-                        SspnetDependencyUtils.GuiHeaders(headerInfoStyle, btnFieldWidth);
-                        SetAdapterUpdateInfo(
-                            SspnetDependencyUtils.SspnetUnityPlugin,
-                            PLUGIN_VERSION,
-                            _response.unity.version,
-                            "",
-                            "",
-                            false
-                        );
-                    }
-                }
-                
-                #endregion
-                
-                #region CoreInfo
-                
-                var dependency = SspnetDependencyUtils.GetCoreDependency(internalDependencies);
-                
-                GUILayout.Space(10);
-                EditorGUILayout.LabelField(SspnetDependencyUtils.SspnetCoreDependencies, labelStyle, GUILayout.Height(20));
-                GUILayout.Space(10);
-                EditorGUILayout.LabelField(SspnetDependencyUtils.iOS, labelStyle, GUILayout.Height(20));
-                using (new EditorGUILayout.VerticalScope(SspnetDependencyUtils.BoxStyle, GUILayout.Height(45)))
-                {
-                    SspnetDependencyUtils.GuiHeaders(headerInfoStyle, btnFieldWidth);
-                    SetAdapterUpdateInfo(
-                        dependency.name,
-                        dependency.iosVersion,
-                        _response.ios.version,
-                        dependency.iosUnityContent,
-                        _response.ios.unity_content, 
-                        false
-                    );
-                }
-                
-                EditorGUILayout.LabelField(SspnetDependencyUtils.Android, labelStyle, GUILayout.Height(20));
-                using (new EditorGUILayout.VerticalScope(SspnetDependencyUtils.BoxStyle, GUILayout.Height(45)))
-                {
-                    SspnetDependencyUtils.GuiHeaders(headerInfoStyle, btnFieldWidth);
-                    SetAdapterUpdateInfo(
-                        dependency.name,
-                        dependency.androidVersion,
-                        _response.android.version,
-                        dependency.androidUnityContent,
-                        _response.android.unity_content, 
-                        false
-                    );
-                }
-                
-                #endregion
-                
-                #region NetworksAdaptersInfo
-            
-                GUILayout.Space(10);
-                EditorGUILayout.LabelField(SspnetDependencyUtils.SspnetNetworkDependencies, labelStyle, GUILayout.Height(20));
-                GUILayout.Space(10);
-            
-                    if (_response != null && _response.ios.networks.Length > 0)
-                    {
-                        EditorGUILayout.LabelField(SspnetDependencyUtils.iOS, labelStyle, GUILayout.Height(20));
-                        using (new EditorGUILayout.VerticalScope(SspnetDependencyUtils.BoxStyle, GUILayout.Height(45)))
+                        var localExternalAdapterSdkInfoEnum = localAdapterSdkInfo.adapters.Where(value =>
+                            string.Equals(value.name.Replace(adapterSdkInfo.name, ""), adapter.name,
+                                StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+                        if (localExternalAdapterSdkInfoEnum.Any())
                         {
-                            SspnetDependencyUtils.GuiHeaders(headerInfoStyle, btnFieldWidth);
-                            GuiAdaptersRows(PlatformSdk.iOS);
-                        } 
-                    }
-                   
-                    if (_response != null && _response.android.networks.Length > 0)
-                    {
-                        EditorGUILayout.LabelField(SspnetDependencyUtils.Android, labelStyle, GUILayout.Height(20));
-                        using (new EditorGUILayout.VerticalScope(SspnetDependencyUtils.BoxStyle, GUILayout.Height(45)))
+                            var localExternalAdapterSdkInfo = localExternalAdapterSdkInfoEnum.First();
+                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name,
+                                localExternalAdapterSdkInfo.version, adapter.version,
+                                () => AddDependencyActions(localExternalAdapterSdkInfo, adapter,
+                                    CreateDependencyPath(adapter, adapterSdkInfo)));
+                        }
+                        else
                         {
-                            SspnetDependencyUtils.GuiHeaders(headerInfoStyle, btnFieldWidth);
-                            GuiAdaptersRows(PlatformSdk.Android);
+                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name, "", adapter.version,
+                                () => AddImportActionIfCan(adapter, CreateDependencyPath(adapter, adapterSdkInfo)));
                         }
                     }
-            
-                #endregion
+                }
+                else
+                {
+                    SetDependencyRow(adapterSdkInfo.name, "", adapterSdkInfo.version,
+                        () => AddImportActionIfCan(adapterSdkInfo, CreateDependencyPath(adapterSdkInfo, null)));
+                }
             }
-            
+
+            #endregion
+
+            #region iOS
+
+            GUILayout.Space(10);
+            EditorGUILayout.LabelField("iOS", _labelStyle, GUILayout.Height(20));
+            GUILayout.Space(5);
+
+            SetDependenciesHeader(_headerInfoStyle, _btnFieldWidth);
+
+            if (_localSdkInfo != null)
+            {
+                using (new EditorGUILayout.VerticalScope(SspnetDependencyUtils.BoxStyle))
+                {
+                    SetDependencyRow("Core", _localSdkInfo.ios.version, _sdkInfo.ios.version,
+                        () => AddUpdateCoreActionIfCan(PlatformSdk.IOS));
+                }
+            }
+
+            foreach (var adapterSdkInfo in _sdkInfo.ios.networks)
+            {
+                if (_localSdkInfo == null) continue;
+                var localAdapterSdkInfoEnum = _localSdkInfo.ios.networks.Where(value =>
+                    string.Equals(value.name, adapterSdkInfo.name, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+                if (localAdapterSdkInfoEnum.Any())
+                {
+                    var localAdapterSdkInfo = localAdapterSdkInfoEnum.First();
+                    SetDependencyRow(adapterSdkInfo.name, localAdapterSdkInfo.version, adapterSdkInfo.version,
+                        () => AddDependencyActions(localAdapterSdkInfo, adapterSdkInfo,
+                            CreateDependencyPath(adapterSdkInfo, null)));
+                    if (localAdapterSdkInfo.version == null) continue;
+                    foreach (var adapter in adapterSdkInfo.adapters)
+                    {
+                        var localExternalAdapterSdkInfoEnum = localAdapterSdkInfo.adapters.Where(value =>
+                            string.Equals(value.name.Replace(adapterSdkInfo.name, ""), adapter.name,
+                                StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+                        if (localExternalAdapterSdkInfoEnum.Any())
+                        {
+                            var localExternalAdapterSdkInfo = localExternalAdapterSdkInfoEnum.First();
+                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name,
+                                localExternalAdapterSdkInfo.version, adapter.version,
+                                () => AddDependencyActions(localExternalAdapterSdkInfo, adapter,
+                                    CreateDependencyPath(adapter, adapterSdkInfo)));
+                        }
+                        else
+                        {
+                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name, "", adapter.version,
+                                () => AddImportActionIfCan(adapter, CreateDependencyPath(adapter, adapterSdkInfo)));
+                        }
+                    }
+                }
+                else
+                {
+                    SetDependencyRow(adapterSdkInfo.name, "", adapterSdkInfo.version,
+                        () => AddImportActionIfCan(adapterSdkInfo, CreateDependencyPath(adapterSdkInfo, null)));
+                }
+            }
+
+            #endregion
+
             GUILayout.Space(5);
             GUILayout.EndVertical();
             EditorGUILayout.EndScrollView();
         }
-        
-        private void GuiAdaptersRows(PlatformSdk platformSdk)
-        {
-            var networks = platformSdk == PlatformSdk.Android ? _response.android.networks : _response.ios.networks;
 
-            foreach (var network in networks)
+        private static string CreateDependencyPath(AdapterSdkInfo adapterSdkInfo, AdapterSdkInfo parentSdkInfo)
+        {
+            if (parentSdkInfo == null)
             {
-                var latestVersion = network.version ?? "";
-                
-                if (internalDependencies.TryGetValue(network.name, out var internalDependency))
-                {
-                    var item = internalDependencies[network.name];
-                    
-                    var name = item?.name ?? "Undefiend";
-                    var internalVersion = (platformSdk == PlatformSdk.Android ? item?.androidVersion : item?.iosVersion) ?? SspnetDependencyUtils.EmptyCurrentVersion;
-                    var internalUnityContent = (platformSdk == PlatformSdk.Android ? item?.androidUnityContent : item?.iosUnityContent) ?? "";
-                    
-                    SetAdapterUpdateInfo(
-                        SspnetDependencyUtils.FormatName(name),
-                        internalVersion,
-                        latestVersion,
-                        internalUnityContent,
-                        network.unity_content,
-                        true
-                    );
-                }
-                else
-                {
-                    SetAdapterUpdateInfo(
-                        SspnetDependencyUtils.FormatName(network.name),
-                        SspnetDependencyUtils.EmptyCurrentVersion,
-                        latestVersion,
-                        "",
-                        network.unity_content,
-                        true
-                    );
-                }
+                var adapterName = adapterSdkInfo.name.First().ToString().ToUpper() + adapterSdkInfo.name[1..];
+                return SspnetDependencyUtils.NetworkConfigsPath + adapterName + "Dependencies" + ".xml";
+            }
+            else
+            {
+                var adapterName = adapterSdkInfo.name.Replace(parentSdkInfo.name, "");
+                var formatted = adapterName.First().ToString().ToUpper() + adapterName[1..];
+                var parentAdapterName = parentSdkInfo.name.First().ToString().ToUpper() + parentSdkInfo.name[1..];
+                return SspnetDependencyUtils.ExternalNetworkDependencies + "/" + parentAdapterName + formatted +
+                       "Dependencies" + ".xml";
             }
         }
-           
-        
-        private void SetAdapterUpdateInfo(string dependencyName, string internalVersion, string latestVersion,
-            string internalContent, string latestContent, bool isNotRequired)
+
+
+        private void SetDependencyRow(string dependencyName, string localVersion, string latestVersion, Action action)
         {
             using (new EditorGUILayout.VerticalScope(SspnetDependencyUtils.BoxStyle))
             {
                 using (new EditorGUILayout.HorizontalScope(GUILayout.Height(20)))
                 {
                     GUILayout.Space(2);
-                    
-                    if (string.IsNullOrEmpty(dependencyName) || string.IsNullOrEmpty(internalVersion) ||
-                        string.IsNullOrEmpty(latestVersion)) return;
 
-                    var replacedName = dependencyName.Replace("sspnet", "");
                     EditorGUILayout.LabelField(new GUIContent
                     {
-                        text = replacedName.First().ToString().ToUpper() + replacedName.Substring(1)
-                    }, packageInfoStyle, GUILayout.Width(145));
+                        text = dependencyName.First().ToString().ToUpper() + dependencyName[1..]
+                    }, _packageInfoStyle, GUILayout.Width(145));
                     GUILayout.Space(56);
-                    GUILayout.Button(internalVersion, packageInfoStyle,GUILayout.Width(120));
-                    GUILayout.Space(85);
-                    GUILayout.Button(latestVersion, packageInfoStyle);
-                    GUILayout.Space(15);
-                    if (isNotRequired)
+                    if (localVersion == null || !localVersion.Any())
                     {
-                        AddImportActionIfCan(dependencyName, internalVersion, latestContent);
-                        AddRemoveActionIfCan(dependencyName, internalVersion, internalContent);
+                        GUILayout.Button("   -   ", _packageInfoStyle, GUILayout.Width(120));
+                    }
+                    else
+                    {
+                        GUILayout.Button(localVersion, _packageInfoStyle, GUILayout.Width(120));
                     }
 
-                    AddUpdatePluginActionIfCan(dependencyName, internalVersion, latestVersion);
-                    AddUpdateActionIfCan(dependencyName, internalVersion, latestVersion, internalContent, latestContent);
+                    GUILayout.Space(85);
+                    GUILayout.Button(latestVersion, _packageInfoStyle);
+                    GUILayout.Space(15);
+
+                    action();
                     GUILayout.Space(15);
                 }
             }
         }
-        
-        private void AddRemoveActionIfCan(string dependencyName, string version, string content)
-        {
-            if (version != SspnetDependencyUtils.EmptyCurrentVersion) {
 
-                if (GUILayout.Button(new GUIContent {text = SspnetDependencyUtils.ActionRemove}, btnFieldWidth))
-                {
-                    var path = $"{SspnetDependencyUtils.NetworkConfigsPath}{dependencyName}{SspnetDependencyUtils.Dependencies}{SspnetDependencyUtils.XmlFileExtension}";
-                        
-                    SspnetDependencyUtils.ReplaceInFile(path, content, "");
-                    SspnetDependencyUtils.FormatXml(path);
-                    
-                    UpdateWindow();
-                }
+        private void ImportDependency(AdapterSdkInfo adapterSdkInfo, string path)
+        {
+            if (!File.Exists(path))
+            {
+                File.WriteAllBytes(path, null);
+                using var writer = new StreamWriter(path);
+                writer.Write("<?xml version=\"1.0\" encoding=\"utf-8\"?><dependencies></dependencies>");
+                writer.Close();
+            }
+
+            string contentString;
+            using (var reader = new StreamReader(path))
+            {
+                contentString = reader.ReadToEnd();
+                reader.Close();
+            }
+
+            contentString = Regex.Replace(contentString, SspnetDependencyUtils.SpecCloseDependencies,
+                adapterSdkInfo.unity_content + "\n" + SspnetDependencyUtils.SpecCloseDependencies);
+
+            using (var writer = new StreamWriter(path))
+            {
+                writer.Write(contentString);
+                writer.Close();
+            }
+
+            SspnetDependencyUtils.FormatXml(path);
+
+            UpdateWindow();
+        }
+
+        private void AddUpdateDependencyActionIfCan(AdapterSdkInfo localAdapterSdkInfo, AdapterSdkInfo adapterSdkInfo,
+            string path)
+        {
+            AddUpdateActionIfCan(localAdapterSdkInfo.version, adapterSdkInfo.version, () =>
+            {
+                SspnetDependencyUtils.ReplaceInFile(path, localAdapterSdkInfo.unity_content,
+                    adapterSdkInfo.unity_content);
+                SspnetDependencyUtils.FormatXml(path);
+                UpdateWindow();
+            });
+        }
+
+        private void AddUpdateCoreActionIfCan(PlatformSdk platformSdk)
+        {
+            const string path = SspnetDependencyUtils.NetworkConfigsPath + "SspnetCoreDependencies.xml";
+            switch (platformSdk)
+            {
+                case PlatformSdk.Android:
+                    AddUpdateActionIfCan(_localSdkInfo.android.version, _sdkInfo.android.version, () =>
+                    {
+                        SspnetDependencyUtils.ReplaceInFile(path, _localSdkInfo.android.unity_content,
+                            _sdkInfo.android.unity_content);
+                        SspnetDependencyUtils.FormatXml(path);
+                        UpdateWindow();
+                    });
+                    break;
+                case PlatformSdk.IOS:
+                    AddUpdateActionIfCan(_localSdkInfo.ios.version, _sdkInfo.ios.version, () =>
+                    {
+                        SspnetDependencyUtils.ReplaceInFile(path, _localSdkInfo.ios.unity_content,
+                            _sdkInfo.ios.unity_content);
+                        SspnetDependencyUtils.FormatXml(path);
+                        UpdateWindow();
+                    });
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(platformSdk), platformSdk, null);
             }
         }
 
-        private void AddImportActionIfCan(string name, string version, string content)
+        private void AddUpdatePluginActionIfCan(string localVersion, string latestVersion)
         {
-            if (version == SspnetDependencyUtils.EmptyCurrentVersion) {
-                Color defaultColor = GUI.backgroundColor;
+            AddUpdateActionIfCan(localVersion, latestVersion, () => this.StartCoroutine(DownloadUnityPlugin()));
+        }
+
+        private void AddDependencyActions(AdapterSdkInfo localAdapterSdkInfo, AdapterSdkInfo adapterSdkInfo,
+            string path)
+        {
+            if (localAdapterSdkInfo?.version == null)
+            {
+                AddImportActionIfCan(adapterSdkInfo, path);
+            }
+            else
+            {
+                AddRemoveActionIfCan(localAdapterSdkInfo, path);
+                AddUpdateDependencyActionIfCan(localAdapterSdkInfo, adapterSdkInfo, path);
+            }
+        }
+
+        private void AddRemoveActionIfCan(AdapterSdkInfo localAdapterSdkInfo, string path)
+        {
+            if (!GUILayout.Button(new GUIContent {text = "Remove"}, _btnFieldWidth)) return;
+            SspnetDependencyUtils.ReplaceInFile(path, localAdapterSdkInfo.unity_content, "");
+            SspnetDependencyUtils.FormatXml(path);
+            UpdateWindow();
+        }
+
+        private void AddImportActionIfCan(AdapterSdkInfo adapterSdkInfo, string path)
+        {
+            var defaultColor = GUI.backgroundColor;
+            GUI.backgroundColor = Color.green;
+
+            if (GUILayout.Button(new GUIContent {text = "Import"}, _btnFieldWidth))
+            {
+                ImportDependency(adapterSdkInfo, path);
+            }
+
+            GUI.backgroundColor = defaultColor;
+        }
+
+        private void AddUpdateActionIfCan(string localVersion, string latestVersion, Action action)
+        {
+            var compare = SspnetDependencyUtils.CompareVersions(localVersion, latestVersion);
+
+            if (compare < 0)
+            {
+                var defaultColor = GUI.backgroundColor;
                 GUI.backgroundColor = Color.green;
 
-                if (GUILayout.Button(new GUIContent {text = SspnetDependencyUtils.ActionImport}, btnFieldWidth))
+                if (GUILayout.Button(new GUIContent {text = "Update"}, _btnFieldWidth))
                 {
-                    ImportConfig(name, content);
+                    action();
                 }
 
                 GUI.backgroundColor = defaultColor;
             }
-        }
-        
-        private void AddUpdateActionIfCan(string dependencyName, string internalVersion, string latestVersion, string internalContent, string latestContent)
-        {
-            if (internalVersion != SspnetDependencyUtils.EmptyCurrentVersion && dependencyName != SspnetDependencyUtils.SspnetUnityPlugin)
+            else
             {
-                var action = SspnetDependencyUtils.CompareVersion(internalVersion, latestVersion);
-            
-                if (action < 0) {
-                    Color defaultColor = GUI.backgroundColor;
-                    GUI.backgroundColor = Color.green;
-                    
-                    if (GUILayout.Button(new GUIContent { text = SspnetDependencyUtils.ActionUpdate }, btnFieldWidth))
-                    {
-                        UpdateDependency(dependencyName, internalContent, latestContent);
-                        UpdateWindow();
-                    }
-                    
-                    GUI.backgroundColor = defaultColor;
-                }
-                else
-                {
-                    GUI.enabled = false;
-                    GUILayout.Button(new GUIContent {text = SspnetDependencyUtils.ActionUpdate}, btnFieldWidth);
-                    GUI.enabled = true;
-                }
+                GUI.enabled = false;
+                GUILayout.Button(new GUIContent {text = "Update"}, _btnFieldWidth);
+                GUI.enabled = true;
             }
         }
-        
-        private void AddUpdatePluginActionIfCan(string dependencyName, string internalVersion, string latestVersion)
-        {
-            if (dependencyName == SspnetDependencyUtils.SspnetUnityPlugin && internalVersion != SspnetDependencyUtils.EmptyCurrentVersion )
-            {
-                var action = SspnetDependencyUtils.CompareVersion(internalVersion, latestVersion);
-            
-                if (action < 0) {
-                    Color defaultColor = GUI.backgroundColor;
-                    GUI.backgroundColor = Color.green;
-                    
-                    if (GUILayout.Button(new GUIContent { text = SspnetDependencyUtils.ActionUpdate }, btnFieldWidth))
-                    {
-                        this.StartCoroutine(DownloadUnityPlugin());
-                    }
-                    
-                    GUI.backgroundColor = defaultColor;
-                }
-                else
-                {
-                    GUI.enabled = false;
-                    GUILayout.Button(new GUIContent {text = SspnetDependencyUtils.ActionUpdate}, btnFieldWidth);
-                    GUI.enabled = true;
-                }
-            }
-        }
-        
+
         private IEnumerator DownloadUnityPlugin()
         {
             yield return null;
@@ -519,43 +663,43 @@ namespace SspnetSDK.Editor.NetworkManager
             var cancelled = false;
             Exception error = null;
             int oldPercentage = 0, newPercentage = 0;
-            
+
             var path = Path.Combine("temp", "download");
-            
-            progress = 0.01f;
-            
-            downloader = new WebClient { Encoding = Encoding.UTF8 };
-            downloader.DownloadProgressChanged += (sender, args) => { newPercentage = args.ProgressPercentage; };
-            downloader.DownloadFileCompleted += (sender, args) =>
+
+            _progress = 0.01f;
+
+            _downloader = new WebClient {Encoding = Encoding.UTF8};
+            _downloader.DownloadProgressChanged += (_, args) => { newPercentage = args.ProgressPercentage; };
+            _downloader.DownloadFileCompleted += (_, args) =>
             {
                 ended = true;
                 cancelled = args.Cancelled;
                 error = args.Error;
             };
 
-            
-            Debug.LogFormat("Downloading {0} to {1}", pluginUrl, path);
-            downloader.DownloadFileAsync(new Uri(pluginUrl), path);
-            
-            
+
+            Debug.LogFormat("Downloading {0} to {1}", _pluginUrl, path);
+            _downloader.DownloadFileAsync(new Uri(_pluginUrl), path);
+
+
             while (!ended)
             {
                 Repaint();
                 var percentage = oldPercentage;
                 yield return new WaitUntil(() => ended || newPercentage > percentage);
                 oldPercentage = newPercentage;
-                progress = oldPercentage / 100.0f;
+                _progress = oldPercentage / 100.0f;
             }
-            
+
             if (error != null)
             {
                 Debug.LogError(error);
                 cancelled = true;
             }
-            
-            downloader = null;
-            coroutine = null;
-            progress = 0;
+
+            _downloader = null;
+            _coroutine = null;
+            _progress = 0;
             EditorUtility.ClearProgressBar();
             if (!cancelled)
             {
@@ -564,58 +708,6 @@ namespace SspnetSDK.Editor.NetworkManager
             else
             {
                 Debug.Log("Download terminated.");
-            }
-        }
-        
-        private void ImportConfig(string name, string content)
-        {
-            var path = $"{SspnetDependencyUtils.NetworkConfigsPath}{name}{SspnetDependencyUtils.Dependencies}{SspnetDependencyUtils.XmlFileExtension}";
-            
-            if (File.Exists(path))
-            {
-                UpdateDependency(name, SspnetDependencyUtils.SpecCloseDependencies, content + "\n" + SspnetDependencyUtils.SpecCloseDependencies);
-            }
-            else
-            {
-                using (TextWriter writer = new StreamWriter(path, false))
-                {
-                    writer.WriteLine(SspnetDependencyUtils.SpecOpenDependencies
-                                     + content + "\n" + SspnetDependencyUtils.SpecCloseDependencies);
-                    writer.Close();
-                }
-
-                SspnetDependencyUtils.FormatXml(path);
-            }
-
-            UpdateWindow();
-        }
-        
-        private void UpdateDependency(string name, string previousContent, string latestContent)
-        {
-            var path = $"{SspnetDependencyUtils.NetworkConfigsPath}{name}{SspnetDependencyUtils.Dependencies}{SspnetDependencyUtils.XmlFileExtension}";
-            
-            if (!File.Exists(path))
-            {
-                SspnetDependencyUtils.ShowInternalErrorDialog(this, "Can't find config with path " + path);
-            }
-            else
-            {
-                string contentString;
-                using (var reader = new StreamReader(path))
-                {
-                    contentString = reader.ReadToEnd();
-                    reader.Close();
-                }
-
-                contentString = Regex.Replace(contentString, previousContent, latestContent);
-
-                using (var writer = new StreamWriter(path))
-                {
-                    writer.Write(contentString);
-                    writer.Close();
-                }
-
-                SspnetDependencyUtils.FormatXml(path);
             }
         }
     }

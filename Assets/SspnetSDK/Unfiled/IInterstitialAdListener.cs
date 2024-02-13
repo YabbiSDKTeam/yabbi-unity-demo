@@ -2,10 +2,10 @@ namespace SspnetSDK.Unfiled
 {
     public interface IInterstitialAdListener
     {
-        void OnInterstitialLoaded();
-        void OnInterstitialLoadFailed(AdException error);
-        void OnInterstitialShown();
-        void OnInterstitialShowFailed(AdException error);
-        void OnInterstitialClosed();
+        void OnInterstitialLoaded(AdPayload adPayload);
+        void OnInterstitialLoadFailed(AdPayload adPayload, AdException error);
+        void OnInterstitialShown(AdPayload adPayload);
+        void OnInterstitialShowFailed(AdPayload adPayload, AdException error);
+        void OnInterstitialClosed(AdPayload adPayload);
     }
 }

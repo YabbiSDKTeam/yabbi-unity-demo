@@ -2,11 +2,11 @@ namespace SspnetSDK.Unfiled
 {
     public interface IRewardedAdListener
     {
-        void OnRewardedLoaded();
-        void OnRewardedLoadFailed(AdException error);
-        void OnRewardedShown();
-        void OnRewardedShowFailed(AdException error);
-        void OnRewardedFinished();
-        void OnRewardedClosed();
+        void OnRewardedLoaded(AdPayload adPayload);
+        void OnRewardedLoadFailed(AdPayload adPayload, AdException error);
+        void OnRewardedShown(AdPayload adPayload);
+        void OnRewardedShowFailed(AdPayload adPayload, AdException error);
+        void OnRewardedFinished(AdPayload adPayload);
+        void OnRewardedClosed(AdPayload adPayload);
     }
 }

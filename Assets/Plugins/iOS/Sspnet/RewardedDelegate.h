@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <SspnetCore/SspnetCore-Swift.h>
 
-typedef void (*RewardedVideoCallbacks) (void);
-typedef void (*RewardedVideoFailCallbacks) (const char *, const char *, const char *);
+typedef void (*RewardedVideoCallbacks) (const char *);
+typedef void (*RewardedVideoFailCallbacks) (const char *, const char *, const char *, const char *);
 
 @interface RewardedDelegate : NSObject <UnfiledRewardedDelegate>
 

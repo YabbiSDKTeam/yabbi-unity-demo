@@ -14,27 +14,41 @@ namespace SspnetSDK.Platform.Android
             _listener = listener;
         }
 
-        private void onInterstitialLoaded() => _listener.OnInterstitialLoaded();
-
-        private void onInterstitialLoadFail(AndroidJavaObject error)
+        private void onInterstitialLoaded(AndroidJavaObject adPayload)
         {
+            var placementName = adPayload.Call<string>("getPlacementName");
+            _listener.OnInterstitialLoaded(new AdPayload(placementName));
+        }
+
+        private void onInterstitialLoadFail(AndroidJavaObject adPayload, AndroidJavaObject error)
+        {
+            var placementName = adPayload.Call<string>("getPlacementName");
             var description = error.Call<string>("getDescription");
             var message = error.Call<string>("getMessage");
             var caused = error.Call<string>("getCaused");
-            _listener.OnInterstitialLoadFailed(new AdException(description, message, caused));
+            _listener.OnInterstitialLoadFailed(new AdPayload(placementName),new AdException(description, message, caused));
         }
 
-        private void onInterstitialShowFailed(AndroidJavaObject error)
+        private void onInterstitialShowFailed(AndroidJavaObject adPayload, AndroidJavaObject error)
         {
+            var placementName = adPayload.Call<string>("getPlacementName");
             var description = error.Call<string>("getDescription");
             var message = error.Call<string>("getMessage");
             var caused = error.Call<string>("getCaused");
-            _listener.OnInterstitialShowFailed(new AdException(description, message, caused));
+            _listener.OnInterstitialShowFailed(new AdPayload(placementName),new AdException(description, message, caused));
         }
 
-        private void onInterstitialShown() => _listener.OnInterstitialShown();
+        private void onInterstitialShown(AndroidJavaObject adPayload)
+        {
+            var placementName = adPayload.Call<string>("getPlacementName");
+            _listener.OnInterstitialShown(new AdPayload(placementName));
+        }
 
-        public void onInterstitialClosed() => _listener.OnInterstitialClosed();
+        public void onInterstitialClosed(AndroidJavaObject adPayload)
+        {
+            var placementName = adPayload.Call<string>("getPlacementName");
+            _listener.OnInterstitialClosed(new AdPayload(placementName));
+        }
     }
 }
 

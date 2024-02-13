@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <dependencies>
     <androidPackages>
-        <androidPackage spec="sspnet.tech:core:1.0.0" />
+        <androidPackage spec="sspnet.tech:core:1.1.0" />
         <repositories>
             <repository>https://sdkpkg.sspnet.tech</repository>
         </repositories>
     </androidPackages>
     <iosPods>
-        <iosPod name="SspnetCore" version="1.0.0" minTargetSdk="13.0" />
+        <iosPod name="SspnetCore" version="1.1.0" minTargetSdk="13.0" />
     </iosPods>
 </dependencies>

@@ -7,7 +7,7 @@ namespace SspnetSDK.Platform.Dummy
     {
         #region Sspnet
 
-        public void Initialize(string publisherID)
+        public void Initialize(string publisherID, IInitializationListener listener)
         {
             DebugLog("Initialize");
         }

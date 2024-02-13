@@ -3,20 +3,22 @@ using System.Runtime.InteropServices;
 
 namespace SspnetSDK.Platform.iOS
 {
-    internal delegate void InterstitialCallbacks();
+    internal delegate void InterstitialCallbacks(string placementName);
 
-    internal delegate void InterstitialFailCallbacks(string description, string message, string caused);
+    internal delegate void InterstitialFailCallbacks(string placementName, string description, string message, string caused);
 
-    internal delegate void RewardedVideoCallbacks();
+    internal delegate void RewardedVideoCallbacks(string placementName);
 
-    internal delegate void RewardedVideoFailCallbacks(string description, string message, string caused);
+    internal delegate void RewardedVideoFailCallbacks(string placementName, string description, string message, string caused);
+    
+    internal delegate void UnityBackgroundCallback(string description, string message, string caused);
 
     internal static class ObjCBridge
     {
         #region Declare external C interface
 
         [DllImport("__Internal")]
-        internal static extern void SspnetInitialize(string publisherID);
+        internal static extern void SspnetInitialize(string publisherID, UnityBackgroundCallback backgroundCallback);
         
         [DllImport("__Internal")]
         internal static extern bool SspnetIsInitialized();

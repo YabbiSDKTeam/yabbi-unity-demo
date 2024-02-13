@@ -13,29 +13,47 @@ namespace SspnetSDK.Platform.Android
             _listener = listener;
         }
 
-        private void onRewardedLoaded() => _listener.OnRewardedLoaded();
-
-        private void onRewardedLoadFail(AndroidJavaObject error)
+        private void onRewardedLoaded(AndroidJavaObject adPayload)
         {
+            var placementName = adPayload.Call<string>("getPlacementName");
+            _listener.OnRewardedLoaded(new AdPayload(placementName));
+        }
+
+        private void onRewardedLoadFail(AndroidJavaObject adPayload, AndroidJavaObject error)
+        {
+            var placementName = adPayload.Call<string>("getPlacementName");
             var description = error.Call<string>("getDescription");
             var message = error.Call<string>("getMessage");
             var caused = error.Call<string>("getCaused");
-            _listener.OnRewardedLoadFailed(new AdException(description, message, caused));
+            _listener.OnRewardedLoadFailed(new AdPayload(placementName),new AdException(description, message, caused));
         }
 
-        private void onRewardedShown() => _listener.OnRewardedShown();
-
-        private void onRewardedShowFailed(AndroidJavaObject error)
+        private void onRewardedShown(AndroidJavaObject adPayload)
         {
+            var placementName = adPayload.Call<string>("getPlacementName");
+            _listener.OnRewardedShown(new AdPayload(placementName));
+        }
+
+        private void onRewardedShowFailed(AndroidJavaObject adPayload, AndroidJavaObject error)
+        {
+            var placementName = adPayload.Call<string>("getPlacementName");
             var description = error.Call<string>("getDescription");
             var message = error.Call<string>("getMessage");
             var caused = error.Call<string>("getCaused");
-            _listener.OnRewardedShowFailed(new AdException(description, message, caused));
+            _listener.OnRewardedShowFailed(new AdPayload(placementName),new AdException(description, message, caused));
         }
 
-        public void onRewardedClosed() => _listener.OnRewardedClosed();
+        public void onRewardedClosed(AndroidJavaObject adPayload)
+        {
+            var placementName = adPayload.Call<string>("getPlacementName");
+            _listener.OnRewardedClosed(new AdPayload(placementName));
+        }
 
-        public void onRewardedFinished() => _listener.OnRewardedFinished();
+        public void onRewardedFinished(AndroidJavaObject adPayload)
+        {
+            var placementName = adPayload.Call<string>("getPlacementName");
+            _listener.OnRewardedFinished(new AdPayload(placementName));
+        }
     }
 }
 

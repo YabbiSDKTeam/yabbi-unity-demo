@@ -15,13 +15,13 @@ namespace YabbiSDK.Api
             return _client ??= ClientFactory.GetAdsClient();
         }
 
-        public static void Initialize(string publisherID)
+        public static void Initialize(string publisherID, IInitializationListener listener)
         {
             GetInstance().SetCustomParams("PUBLISHER_URL", "https://yabbi.me/publishers");
             GetInstance().SetCustomParams("CABINET", "Yabbi");
             GetInstance().SetCustomParams("PLATFORM", "unity");
 
-            GetInstance().Initialize(publisherID);
+            GetInstance().Initialize(publisherID, listener);
         }
         
         public static bool IsInitialized()

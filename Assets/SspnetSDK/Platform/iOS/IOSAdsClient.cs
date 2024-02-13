@@ -18,10 +18,13 @@ namespace SspnetSDK.Platform.iOS
 
         private static IInterstitialAdListener _interstitialAdListener;
         private static IRewardedAdListener _rewardedAdListener;
+        private static IInitializationListener _initializationListener;
 
-        public void Initialize(string publisherID)
+
+        public void Initialize(string publisherID, IInitializationListener listener)
         {
-            ObjCBridge.SspnetInitialize(publisherID);
+            _initializationListener = listener;
+            ObjCBridge.SspnetInitialize(publisherID, OnInitializedCallback);
         }
 
         public bool IsInitialized()
@@ -108,37 +111,50 @@ namespace SspnetSDK.Platform.iOS
         {
             return ObjCBridge.SspnetGetSdkVersion();
         }
+        
+        [MonoPInvokeCallback(typeof(UnityBackgroundCallback))]
+        internal static void OnInitializedCallback(string description, string message, string caused)
+        {
+            if (description == null)
+            {
+                _initializationListener?.OnInitializeSuccess();
+            }
+            else
+            {
+                _initializationListener?.OnInitializeFailed(new AdException(description, message, caused));
+            }
+        }
 
         #region Intestital Delegate
 
         [MonoPInvokeCallback(typeof(InterstitialCallbacks))]
-        internal static void OnInterstitialLoaded()
+        internal static void OnInterstitialLoaded(string placementName)
         {
-            _interstitialAdListener?.OnInterstitialLoaded();
+            _interstitialAdListener?.OnInterstitialLoaded(new AdPayload(placementName));
         }
         
         [MonoPInvokeCallback(typeof(InterstitialFailCallbacks))]
-        internal static void OnInterstitialLoadFailed(string description, string message, string caused)
+        internal static void OnInterstitialLoadFailed(string placementName, string description, string message, string caused)
         {
-            _interstitialAdListener?.OnInterstitialLoadFailed(new AdException(description, message, caused));
+            _interstitialAdListener?.OnInterstitialLoadFailed(new AdPayload(placementName),new AdException(description, message, caused));
         }
 
         [MonoPInvokeCallback(typeof(InterstitialCallbacks))]
-        internal static void OnInterstitialShown()
+        internal static void OnInterstitialShown(string placementName)
         {
-            _interstitialAdListener?.OnInterstitialShown();
+            _interstitialAdListener?.OnInterstitialShown(new AdPayload(placementName));
         }
         
         [MonoPInvokeCallback(typeof(InterstitialFailCallbacks))]
-        internal static void OnInterstitialShowFailed(string description, string message, string caused)
+        internal static void OnInterstitialShowFailed(string placementName, string description, string message, string caused)
         {
-            _interstitialAdListener?.OnInterstitialShowFailed(new AdException(description, message, caused));
+            _interstitialAdListener?.OnInterstitialShowFailed(new AdPayload(placementName),new AdException(description, message, caused));
         }
 
         [MonoPInvokeCallback(typeof(InterstitialCallbacks))]
-        internal static void OnInterstitialClosed()
+        internal static void OnInterstitialClosed(string placementName)
         {
-            _interstitialAdListener?.OnInterstitialClosed();
+            _interstitialAdListener?.OnInterstitialClosed(new AdPayload(placementName));
         }
 
         #endregion
@@ -146,39 +162,39 @@ namespace SspnetSDK.Platform.iOS
         #region Video Delegate
 
         [MonoPInvokeCallback(typeof(RewardedVideoCallbacks))]
-        internal static void OnRewardedLoaded()
+        internal static void OnRewardedLoaded(string placementName)
         {
-            _rewardedAdListener?.OnRewardedLoaded();
+            _rewardedAdListener?.OnRewardedLoaded(new AdPayload(placementName));
         }
         
         [MonoPInvokeCallback(typeof(RewardedVideoFailCallbacks))]
-        internal static void OnRewardedLoadFailed(string description, string message, string caused)
+        internal static void OnRewardedLoadFailed(string placementName, string description, string message, string caused)
         {
-            _rewardedAdListener?.OnRewardedLoadFailed(new AdException(description, message, caused));
+            _rewardedAdListener?.OnRewardedLoadFailed(new AdPayload(placementName),new AdException(description, message, caused));
         }
 
         [MonoPInvokeCallback(typeof(RewardedVideoCallbacks))]
-        internal static void OnRewardedShown()
+        internal static void OnRewardedShown(string placementName)
         {
-            _rewardedAdListener?.OnRewardedShown();
+            _rewardedAdListener?.OnRewardedShown(new AdPayload(placementName));
         }
         
         [MonoPInvokeCallback(typeof(RewardedVideoFailCallbacks))]
-        internal static void OnRewardedShowFailed(string description, string message, string caused)
+        internal static void OnRewardedShowFailed(string placementName, string description, string message, string caused)
         {
-            _rewardedAdListener?.OnRewardedShowFailed(new AdException(description, message, caused));
+            _rewardedAdListener?.OnRewardedShowFailed(new AdPayload(placementName),new AdException(description, message, caused));
         }
 
         [MonoPInvokeCallback(typeof(RewardedVideoCallbacks))]
-        internal static void OnRewardedClosed()
+        internal static void OnRewardedClosed(string placementName)
         {
-            _rewardedAdListener?.OnRewardedClosed();
+            _rewardedAdListener?.OnRewardedClosed(new AdPayload(placementName));
         }
 
         [MonoPInvokeCallback(typeof(RewardedVideoCallbacks))]
-        internal static void OnRewardedFinished()
+        internal static void OnRewardedFinished(string placementName)
         {
-            _rewardedAdListener?.OnRewardedFinished();
+            _rewardedAdListener?.OnRewardedFinished(new AdPayload(placementName));
         }
 
         #endregion

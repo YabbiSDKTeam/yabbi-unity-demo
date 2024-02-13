@@ -15,9 +15,16 @@ UIViewController *SspnetRootViewController(void) {
 #endif
 }
 
+typedef void (*UnityBackgroundCallback)(const char * _Nullable, const char * _Nullable, const char * _Nullable);
 
-void SspnetInitialize(const char *publisherID) {
-    [SspnetCoreSDK initializeWithPublisherID:[NSString stringWithUTF8String:publisherID]];
+void SspnetInitialize(const char *publisherID, UnityBackgroundCallback backgroundCallback) {
+    [SspnetCoreSDK initializeWithPublisherID:[NSString stringWithUTF8String:publisherID] :^(UnfiledAdException * _Nullable error) {
+        if(error) {
+            backgroundCallback([error.localizedDescription UTF8String], [error.message UTF8String], [error.caused UTF8String]);
+        } else {
+            backgroundCallback(nil, nil, nil);
+        }
+    }];
 }
 
 BOOL SspnetIsInitialized(void) {

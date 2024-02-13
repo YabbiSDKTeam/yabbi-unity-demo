@@ -2,7 +2,7 @@ namespace SspnetSDK.Unfiled
 {
     public interface IAdsClient
     {
-        public void Initialize(string publisherID);
+        public void Initialize(string publisherID, IInitializationListener listener);
         public bool IsInitialized();
         public bool CanLoadAd(int adType, string placementName);
         public void LoadAd(int adType, string placementName);

@@ -8,7 +8,7 @@ using YabbiSDK.ConsentManagerSDK.Api;
 
 namespace YabbiSDK.Demo.Scripts
 {
-    public class YabbiDemo : MonoBehaviour, IInterstitialAdListener, IRewardedAdListener, IConsentListener
+    public class YabbiDemo : MonoBehaviour, IInterstitialAdListener, IRewardedAdListener, IConsentListener, IInitializationListener
     {
         public Text logger;
         private readonly ConsentManager _consentManager = new();
@@ -69,7 +69,7 @@ namespace YabbiSDK.Demo.Scripts
                 Yabbi.SetRewardedCallbacks(this);
 
                 Yabbi.SetUserConsent(true);
-                Yabbi.Initialize("65057899-a16a-4877-989b-38c432a7fa15");
+                Yabbi.Initialize("65057899-a16a-4877-989b-38c432a7fa15", this);
                 
                 _consentManager.SetListener(this);
                 
@@ -95,57 +95,57 @@ namespace YabbiSDK.Demo.Scripts
             logger.text = $"{current}\n{message}";
         }
 
-        public void OnInterstitialLoaded()
+        public void OnInterstitialLoaded(AdPayload adPayload)
         {
             LogEvent("OnInterstitialLoaded");
         }
 
-        public void OnInterstitialLoadFailed(AdException error)
+        public void OnInterstitialLoadFailed(AdPayload adPayload, AdException error)
         {
             LogEvent($"OnInterstitialLoadFailed: {error.Description}");
         }
 
-        public void OnInterstitialShown()
+        public void OnInterstitialShown(AdPayload adPayload)
         {
             LogEvent("OnInterstitialShown");
         }
 
-        public void OnInterstitialShowFailed(AdException error)
+        public void OnInterstitialShowFailed(AdPayload adPayload, AdException error)
         {
             LogEvent($"OnInterstitialShowFailed: {error.Description}");
         }
 
-        public void OnInterstitialClosed()
+        public void OnInterstitialClosed(AdPayload adPayload)
         {
             LogEvent("OnInterstitialClosed");
         }
 
-        public void OnRewardedLoaded()
+        public void OnRewardedLoaded(AdPayload adPayload)
         {
             LogEvent("OnRewardedLoaded");
         }
 
-        public void OnRewardedLoadFailed(AdException error)
+        public void OnRewardedLoadFailed(AdPayload adPayload, AdException error)
         {
             LogEvent($"OnRewardedLoadFailed: {error.Description}");
         }
 
-        public void OnRewardedShowFailed(AdException error)
+        public void OnRewardedShowFailed(AdPayload adPayload, AdException error)
         {
             LogEvent($"OnRewardedShowFailed: {error.Description}");
         }
 
-        public void OnRewardedShown()
+        public void OnRewardedShown(AdPayload adPayload)
         {
             LogEvent("OnRewardedShown");
         }
 
-        public void OnRewardedFinished()
+        public void OnRewardedFinished(AdPayload adPayload)
         {
             LogEvent("OnRewardedFinished");
         }
 
-        public void OnRewardedClosed()
+        public void OnRewardedClosed(AdPayload adPayload)
         {
             LogEvent("OnRewardedClosed");
         }
@@ -174,6 +174,16 @@ namespace YabbiSDK.Demo.Scripts
         {
             Yabbi.SetUserConsent(hasConsent);
             LogEvent($"onConsentWindowClosed - {hasConsent}");
+        }
+
+        public void OnInitializeSuccess()
+        {
+            LogEvent("OnInitializeSuccess");
+        }
+
+        public void OnInitializeFailed(AdException error)
+        {
+            LogEvent($"OnInitializeFailed - {error}");
         }
     }
 }

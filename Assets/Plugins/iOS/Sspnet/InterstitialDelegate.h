@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <SspnetCore/SspnetCore-Swift.h>
 
-typedef void (*InterstitialCallbacks) (void);
-typedef void (*InterstitialFailCallbacks) (const char *, const char *, const char *);
+typedef void (*InterstitialCallbacks) (const char *);
+typedef void (*InterstitialFailCallbacks) (const char *, const char *, const char *, const char *);
 
 @interface InterstitialDelegate : NSObject <UnfiledInterstitialDelegate>
 
