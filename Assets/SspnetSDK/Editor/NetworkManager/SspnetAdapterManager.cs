@@ -29,7 +29,7 @@ namespace SspnetSDK.Editor.NetworkManager
     //
     public class SspnetAdapterManager : EditorWindow
     {
-        private const string PluginVersion = "1.1.0";
+        private const string PluginVersion = "1.2.0";
 
         #region GUIStyles
 
