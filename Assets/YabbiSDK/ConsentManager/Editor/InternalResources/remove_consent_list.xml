@@ -10,12 +10,12 @@
         <check_if_empty>false</check_if_empty>
         <is_confirmation_required>false</is_confirmation_required>
         <name>ConsentManager unfiled</name>
-        <path>SspnetSDK/ConsentManager</path>
+        <path>SspnetSDK/ConsentManagerSDK</path>
     </item>
     <item>
         <check_if_empty>false</check_if_empty>
         <is_confirmation_required>false</is_confirmation_required>
         <name>ConsentManager</name>
-        <path>YabbiSDK/ConsentManager</path>
+        <path>YabbiSDK/ConsentManagerSDK</path>
     </item>
 </items>

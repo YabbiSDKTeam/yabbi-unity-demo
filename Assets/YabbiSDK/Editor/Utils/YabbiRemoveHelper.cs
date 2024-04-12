@@ -30,7 +30,7 @@ namespace YabbiSDK.Editor.Utils
                     "Да",
                     "Отмена"))
             {
-                RemoveHelper.RemoveConsentManager("YabbiSDK/ConsentManager/Editor/InternalResources/remove_consent_list.xml");
+                RemoveHelper.RemoveConsentManager("YabbiSDK/ConsentManagerSDK/Editor/InternalResources/remove_consent_list.xml");
             }
         }
     }
