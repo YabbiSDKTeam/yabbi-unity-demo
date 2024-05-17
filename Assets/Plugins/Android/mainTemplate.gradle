@@ -5,7 +5,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 // Android Resolver Dependencies Start
     implementation 'sspnet.tech.consent:yabbi:1.0.0' // Assets/YabbiSDK/ConsentManager/Editor/NetworkConfigs/ConsentDependencies.xml:3
-    implementation 'sspnet.tech:core:1.3.3' // Assets/SspnetSDK/Editor/NetworkConfigs/SspnetCoreDependencies.xml:4
+    implementation 'sspnet.tech:core:1.4.0' // Assets/SspnetSDK/Editor/NetworkConfigs/SspnetCoreDependencies.xml:4
 // Android Resolver Dependencies End
 **DEPS**}
 
