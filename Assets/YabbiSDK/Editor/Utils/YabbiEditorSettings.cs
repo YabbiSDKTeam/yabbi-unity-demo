@@ -1,8 +1,8 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-using SspnetSDK.Editor.NetworkManager;
 using SspnetSDK.Editor.Utils;
+using SspnetSDK.Editor.Windows;
 
 namespace YabbiSDK.Editor.Utils
 {
@@ -20,14 +20,15 @@ namespace YabbiSDK.Editor.Utils
             Application.OpenURL("https://yabbi.me/publishers");
         }
 
-#if UNITY_2018_1_OR_NEWER        
+#if UNITY_2018_1_OR_NEWER
         [MenuItem("Yabbi/Управление зависимостями")]
-        public static void ShowSdkManager()
+        public static void ShowDependencyManager()
         {
-            SspnetAdapterManager.ShowSdkManager("https://sdkpkg.sspnet.tech/unity/yabbi/latest/yabbi-unity-plugin.unitypackage");
+            SspnetAdapterManager.ShowWindow(
+                "https://sdkpkg.sspnet.tech/unity/yabbi/latest/yabbi-unity-plugin.unitypackage");
         }
 #endif
-        
+
         [MenuItem("Yabbi/Настройки плагина")]
         public static void ShowInternalSettings()
         {
@@ -39,7 +40,7 @@ namespace YabbiSDK.Editor.Utils
         {
             YabbiRemoveHelper.RemovePlugin();
         }
-        
+
         [MenuItem("Yabbi/Удалить Consent Manager")]
         public static void RemoveConsentPlugin()
         {

@@ -6,7 +6,9 @@ namespace SspnetSDK.Unfiled
         void OnRewardedLoadFailed(AdPayload adPayload, AdException error);
         void OnRewardedShown(AdPayload adPayload);
         void OnRewardedShowFailed(AdPayload adPayload, AdException error);
-        void OnRewardedFinished(AdPayload adPayload);
         void OnRewardedClosed(AdPayload adPayload);
+        void OnRewardedVideoStarted(AdPayload adPayload);
+        void OnRewardedVideoCompleted(AdPayload adPayload);
+        void OnUserRewarded(AdPayload adPayload);
     }
 }

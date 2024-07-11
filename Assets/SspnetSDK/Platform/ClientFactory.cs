@@ -17,7 +17,7 @@ namespace SspnetSDK.Platform
 #if UNITY_ANDROID
 			return new AndroidAdsClient();
 #elif UNITY_IPHONE
-			return IOSAdsClient.Instance;
+            return IOSAdsClient.Instance;
 #else
             return new DummyClient();
 #endif

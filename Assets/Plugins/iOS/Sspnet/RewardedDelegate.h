@@ -11,6 +11,8 @@ typedef void (*RewardedVideoFailCallbacks) (const char *, const char *, const ch
 @property (assign, nonatomic) RewardedVideoCallbacks onRewardedVideoShownCallback;
 @property (assign, nonatomic) RewardedVideoFailCallbacks onRewardedVideoShowFailedCallback;
 @property (assign, nonatomic) RewardedVideoCallbacks onRewardedVideoClosedCallback;
-@property (assign, nonatomic) RewardedVideoCallbacks onRewardedVideoFinishedCallback;
+@property (assign, nonatomic) RewardedVideoCallbacks onRewardedVideoStartedCallback;
+@property (assign, nonatomic) RewardedVideoCallbacks onRewardedVideoCompletedCallback;
+@property (assign, nonatomic) RewardedVideoCallbacks onRewardedVideoUserRewardedCallback;
 
 @end

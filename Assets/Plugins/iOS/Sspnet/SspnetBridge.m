@@ -108,7 +108,9 @@ void SspnetSetRewardedDelegate(
                               RewardedVideoCallbacks onRewardedVideoShown,
                               RewardedVideoFailCallbacks onRewardedVideoShownFailed,
                               RewardedVideoCallbacks onRewardedVideoClosed,
-                              RewardedVideoCallbacks onRewardedVideoFinished
+                              RewardedVideoCallbacks onRewardedVideoStarted,
+                              RewardedVideoCallbacks onRewardedVideoCompleted,
+                              RewardedVideoCallbacks onRewardedVideoUserRewarded
                               ) {
     
     RewardedVideoDelegateInstance = [RewardedDelegate new];
@@ -118,7 +120,9 @@ void SspnetSetRewardedDelegate(
     RewardedVideoDelegateInstance.onRewardedVideoShownCallback = onRewardedVideoShown;
     RewardedVideoDelegateInstance.onRewardedVideoShowFailedCallback = onRewardedVideoShownFailed;
     RewardedVideoDelegateInstance.onRewardedVideoClosedCallback = onRewardedVideoClosed;
-    RewardedVideoDelegateInstance.onRewardedVideoFinishedCallback = onRewardedVideoFinished;
+    RewardedVideoDelegateInstance.onRewardedVideoStartedCallback = onRewardedVideoStarted;
+    RewardedVideoDelegateInstance.onRewardedVideoCompletedCallback = onRewardedVideoCompleted;
+    RewardedVideoDelegateInstance.onRewardedVideoUserRewardedCallback = onRewardedVideoUserRewarded;
     
     [SspnetCoreSDK setRewardedDelegate:RewardedVideoDelegateInstance];
 }

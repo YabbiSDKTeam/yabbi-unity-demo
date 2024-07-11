@@ -140,14 +140,24 @@ namespace YabbiSDK.Demo.Scripts
             LogEvent("OnRewardedShown");
         }
 
-        public void OnRewardedFinished(AdPayload adPayload)
-        {
-            LogEvent("OnRewardedFinished");
-        }
-
         public void OnRewardedClosed(AdPayload adPayload)
         {
             LogEvent("OnRewardedClosed");
+        }
+
+        public void OnRewardedVideoStarted(AdPayload adPayload)
+        {
+            LogEvent("OnRewardedVideoStarted");
+        }
+
+        public void OnRewardedVideoCompleted(AdPayload adPayload)
+        {
+            LogEvent("OnRewardedVideoCompleted");
+        }
+
+        public void OnUserRewarded(AdPayload adPayload)
+        {
+            LogEvent("OnUserRewarded");
         }
 
         public void OnConsentManagerLoaded()

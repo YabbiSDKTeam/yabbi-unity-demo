@@ -6,7 +6,8 @@ namespace SspnetSDK.Unfiled
         public readonly string Message;
         public readonly string Caused;
 
-        public AdException(string description,string message, string caused) {
+        public AdException(string description, string message, string caused)
+        {
             Description = description;
             Message = message;
             Caused = caused;

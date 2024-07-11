@@ -66,7 +66,12 @@
         <name>SspnetSDK iOS</name>
         <path>Plugins/iOS</path>
     </item>
-
+    <item>
+        <check_if_empty>false</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>Plugins iOS sspnet</name>
+        <path>Plugins/iOS/Sspnet</path>
+    </item>
     <item>
         <check_if_empty>false</check_if_empty>
         <is_confirmation_required>false</is_confirmation_required>
@@ -113,5 +118,23 @@
         <is_confirmation_required>true</is_confirmation_required>
         <name>Jar Resolver</name>
         <path>ExternalDependencyManager</path>
+    </item>
+    <item>
+        <check_if_empty>false</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>ConsentManager iOS</name>
+        <path>Plugins/iOS/Yabbi</path>
+    </item>
+    <item>
+        <check_if_empty>false</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>ConsentManager unfiled</name>
+        <path>SspnetSDK/ConsentManagerSDK</path>
+    </item>
+    <item>
+        <check_if_empty>false</check_if_empty>
+        <is_confirmation_required>false</is_confirmation_required>
+        <name>ConsentManager</name>
+        <path>YabbiSDK/ConsentManagerSDK</path>
     </item>
 </items>

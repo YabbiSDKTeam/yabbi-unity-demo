@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SspnetSDK.Editor.InternalResources
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class SspnetSettings : ScriptableObject 
+    public class SspnetSettings : ScriptableObject
     {
         private const string SspnetSettingsExportPath = "SspnetSDK/Editor/InternalResources/SspnetSettings.asset";
         private static SspnetSettings instance;
@@ -22,7 +22,7 @@ namespace SspnetSDK.Editor.InternalResources
 
         [SerializeField] private bool iOSSKAdNetworkItems = true;
         [SerializeField] private List<string> iOsskAdNetworkItemsList;
-        
+
         public static SspnetSettings Instance
         {
             get
@@ -30,10 +30,7 @@ namespace SspnetSDK.Editor.InternalResources
                 if (instance != null) return instance;
                 var settingsFilePath = Path.Combine("Assets", SspnetSettingsExportPath);
                 var settingsDir = Path.GetDirectoryName(settingsFilePath);
-                if (!Directory.Exists(settingsDir))
-                {
-                    Directory.CreateDirectory(settingsDir ?? string.Empty);
-                }
+                if (!Directory.Exists(settingsDir)) Directory.CreateDirectory(settingsDir ?? string.Empty);
 
                 instance = AssetDatabase.LoadAssetAtPath<SspnetSettings>(settingsFilePath);
                 if (instance != null) return instance;
@@ -43,8 +40,8 @@ namespace SspnetSDK.Editor.InternalResources
                 return instance;
             }
         }
-        
-         public bool AccessCoarseLocationPermission
+
+        public bool AccessCoarseLocationPermission
         {
             get => accessCoarseLocationPermission;
             set => Instance.accessCoarseLocationPermission = value;

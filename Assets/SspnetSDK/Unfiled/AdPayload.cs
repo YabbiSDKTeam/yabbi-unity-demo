@@ -6,7 +6,8 @@ namespace SspnetSDK.Unfiled
         public readonly string Message;
         public readonly string Caused;
 
-        public AdPayload(string placementName) {
+        public AdPayload(string placementName)
+        {
             PlacementName = placementName;
         }
     }

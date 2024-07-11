@@ -1,5 +1,4 @@
 #if UNITY_ANDROID
-
 using SspnetSDK.Unfiled;
 using UnityEngine;
 

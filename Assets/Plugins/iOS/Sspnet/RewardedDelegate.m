@@ -11,12 +11,6 @@
     }
 }
 
-- (void)onRewardedFinished:(UnfiledAdPayload * _Nonnull)adPayload { 
-    if(self.onRewardedVideoFinishedCallback) {
-        self.onRewardedVideoFinishedCallback([adPayload.placementName UTF8String]);
-    }
-}
-
 - (void)onRewardedLoadFailed:(UnfiledAdPayload * _Nonnull)adPayload :(UnfiledAdException * _Nonnull)error { 
     if(self.onRewardedVideoLoadFailedCallback) {
         self.onRewardedVideoLoadFailedCallback([adPayload.placementName UTF8String], [error.localizedDescription UTF8String], [error.message UTF8String], [error.caused UTF8String]);
@@ -40,5 +34,24 @@
         self.onRewardedVideoShownCallback([adPayload.placementName UTF8String]);
     }
 }
+
+- (void)onRewardedVideoStarted:(UnfiledAdPayload * _Nonnull)adPayload {
+    if(self.onRewardedVideoStartedCallback) {
+        self.onRewardedVideoStartedCallback([adPayload.placementName UTF8String]);
+    }
+}
+
+- (void)onRewardedVideoCompleted:(UnfiledAdPayload * _Nonnull)adPayload {
+    if(self.onRewardedVideoCompletedCallback) {
+        self.onRewardedVideoCompletedCallback([adPayload.placementName UTF8String]);
+    }
+}
+
+- (void)onUserRewarded:(UnfiledAdPayload * _Nonnull)adPayload { 
+    if(self.onRewardedVideoUserRewardedCallback) {
+        self.onRewardedVideoUserRewardedCallback([adPayload.placementName UTF8String]);
+    }
+}
+
 
 @end

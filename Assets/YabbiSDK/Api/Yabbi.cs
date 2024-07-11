@@ -6,7 +6,7 @@ namespace YabbiSDK.Api
     public static class Yabbi
     {
         private static IAdsClient _client;
-        
+
         public const int Interstitial = 1;
         public const int Rewarded = 3;
 
@@ -23,10 +23,10 @@ namespace YabbiSDK.Api
 
             GetInstance().Initialize(publisherID, listener);
         }
-        
+
         public static bool IsInitialized()
         {
-           return GetInstance().IsInitialized();
+            return GetInstance().IsInitialized();
         }
 
         public static bool CanLoadAd(int adType, string placementName)
@@ -53,7 +53,7 @@ namespace YabbiSDK.Api
         {
             GetInstance().DestroyAd(adType, placementName);
         }
-        
+
         public static void DestroyAd(int adType)
         {
             GetInstance().DestroyAd(adType);
@@ -73,22 +73,22 @@ namespace YabbiSDK.Api
         {
             GetInstance().SetCustomParams(key, value);
         }
-        
+
         public static void SetUserConsent(bool hasConsent)
         {
             GetInstance().SetUserConsent(hasConsent);
         }
-        
+
         public static void EnableDebug(bool enabled)
         {
             GetInstance().EnableDebug(enabled);
         }
-        
+
         public static bool HasUserConsent()
         {
             return GetInstance().HasUserConsent();
         }
-        
+
         public static string GetSdkVersion()
         {
             return GetInstance().GetSdkVersion();

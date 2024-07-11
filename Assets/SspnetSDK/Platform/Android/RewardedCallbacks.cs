@@ -48,11 +48,23 @@ namespace SspnetSDK.Platform.Android
             var placementName = adPayload.Call<string>("getPlacementName");
             _listener.OnRewardedClosed(new AdPayload(placementName));
         }
-
-        public void onRewardedFinished(AndroidJavaObject adPayload)
+        
+        public void onRewardedVideoStarted(AndroidJavaObject adPayload)
         {
             var placementName = adPayload.Call<string>("getPlacementName");
-            _listener.OnRewardedFinished(new AdPayload(placementName));
+            _listener.OnRewardedVideoStarted(new AdPayload(placementName));
+        }
+        
+        public void onRewardedVideoCompleted(AndroidJavaObject adPayload)
+        {
+            var placementName = adPayload.Call<string>("getPlacementName");
+            _listener.OnRewardedVideoCompleted(new AdPayload(placementName));
+        }
+
+        public void onUserRewarded(AndroidJavaObject adPayload)
+        {
+            var placementName = adPayload.Call<string>("getPlacementName");
+            _listener.OnUserRewarded(new AdPayload(placementName));
         }
     }
 }

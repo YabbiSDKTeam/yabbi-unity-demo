@@ -1,0 +1,11 @@
+<dependencies>
+    <androidPackages>
+        <androidPackage spec='sspnet.tech.consent:yabbi:1.1.2'/>
+        <repositories>
+            <repository>https://sdkpkg.sspnet.tech</repository>
+        </repositories>
+    </androidPackages>
+    <iosPods>
+        <iosPod name='YabbiConsentManager' version="1.0.0" minTargetSdk='13.0'/>
+    </iosPods>
+</dependencies>

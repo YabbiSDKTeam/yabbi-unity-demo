@@ -18,9 +18,7 @@ namespace YabbiSDK.Editor.Utils
                     "Да",
                     "Отмена"
                 ))
-            {
-                RemoveHelper.RemovePlugin("YabbiSDK/Editor/InternalResources/remove_sdk_list.xml");
-            }
+                RemoveUtils.RemovePlugin("YabbiSDK/Editor/InternalResources/remove_sdk_list.xml");
         }
 
         public static void RemoveConsentManager()
@@ -29,9 +27,8 @@ namespace YabbiSDK.Editor.Utils
                     "Вы действительно хотите удалить ConsentManager из проекта?",
                     "Да",
                     "Отмена"))
-            {
-                RemoveHelper.RemoveConsentManager("YabbiSDK/ConsentManagerSDK/Editor/InternalResources/remove_consent_list.xml");
-            }
+                RemoveUtils.RemoveConsentManager(
+                    "YabbiSDK/ConsentManagerSDK/Editor/InternalResources/remove_consent_list.xml");
         }
     }
 }

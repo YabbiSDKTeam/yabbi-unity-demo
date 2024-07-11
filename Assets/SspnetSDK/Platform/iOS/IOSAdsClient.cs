@@ -51,7 +51,7 @@ namespace SspnetSDK.Platform.iOS
         {
             ObjCBridge.SspnetLoadAd(adType, placementName);
         }
-        
+
         public void DestroyAd(int adType)
         {
             ObjCBridge.SspnetDestroyAdByType(adType);
@@ -83,7 +83,9 @@ namespace SspnetSDK.Platform.iOS
                 OnRewardedShown,
                 OnRewardedShowFailed,
                 OnRewardedClosed,
-                OnRewardedFinished
+                OnRewardedVideoStarted,
+                OnRewardedVideoCompleted,
+                OnUserRewarded
             );
         }
 
@@ -111,18 +113,14 @@ namespace SspnetSDK.Platform.iOS
         {
             return ObjCBridge.SspnetGetSdkVersion();
         }
-        
+
         [MonoPInvokeCallback(typeof(UnityBackgroundCallback))]
         internal static void OnInitializedCallback(string description, string message, string caused)
         {
             if (description == null)
-            {
                 _initializationListener?.OnInitializeSuccess();
-            }
             else
-            {
                 _initializationListener?.OnInitializeFailed(new AdException(description, message, caused));
-            }
         }
 
         #region Intestital Delegate
@@ -132,11 +130,13 @@ namespace SspnetSDK.Platform.iOS
         {
             _interstitialAdListener?.OnInterstitialLoaded(new AdPayload(placementName));
         }
-        
+
         [MonoPInvokeCallback(typeof(InterstitialFailCallbacks))]
-        internal static void OnInterstitialLoadFailed(string placementName, string description, string message, string caused)
+        internal static void OnInterstitialLoadFailed(string placementName, string description, string message,
+            string caused)
         {
-            _interstitialAdListener?.OnInterstitialLoadFailed(new AdPayload(placementName),new AdException(description, message, caused));
+            _interstitialAdListener?.OnInterstitialLoadFailed(new AdPayload(placementName),
+                new AdException(description, message, caused));
         }
 
         [MonoPInvokeCallback(typeof(InterstitialCallbacks))]
@@ -144,11 +144,13 @@ namespace SspnetSDK.Platform.iOS
         {
             _interstitialAdListener?.OnInterstitialShown(new AdPayload(placementName));
         }
-        
+
         [MonoPInvokeCallback(typeof(InterstitialFailCallbacks))]
-        internal static void OnInterstitialShowFailed(string placementName, string description, string message, string caused)
+        internal static void OnInterstitialShowFailed(string placementName, string description, string message,
+            string caused)
         {
-            _interstitialAdListener?.OnInterstitialShowFailed(new AdPayload(placementName),new AdException(description, message, caused));
+            _interstitialAdListener?.OnInterstitialShowFailed(new AdPayload(placementName),
+                new AdException(description, message, caused));
         }
 
         [MonoPInvokeCallback(typeof(InterstitialCallbacks))]
@@ -166,11 +168,13 @@ namespace SspnetSDK.Platform.iOS
         {
             _rewardedAdListener?.OnRewardedLoaded(new AdPayload(placementName));
         }
-        
+
         [MonoPInvokeCallback(typeof(RewardedVideoFailCallbacks))]
-        internal static void OnRewardedLoadFailed(string placementName, string description, string message, string caused)
+        internal static void OnRewardedLoadFailed(string placementName, string description, string message,
+            string caused)
         {
-            _rewardedAdListener?.OnRewardedLoadFailed(new AdPayload(placementName),new AdException(description, message, caused));
+            _rewardedAdListener?.OnRewardedLoadFailed(new AdPayload(placementName),
+                new AdException(description, message, caused));
         }
 
         [MonoPInvokeCallback(typeof(RewardedVideoCallbacks))]
@@ -178,11 +182,13 @@ namespace SspnetSDK.Platform.iOS
         {
             _rewardedAdListener?.OnRewardedShown(new AdPayload(placementName));
         }
-        
+
         [MonoPInvokeCallback(typeof(RewardedVideoFailCallbacks))]
-        internal static void OnRewardedShowFailed(string placementName, string description, string message, string caused)
+        internal static void OnRewardedShowFailed(string placementName, string description, string message,
+            string caused)
         {
-            _rewardedAdListener?.OnRewardedShowFailed(new AdPayload(placementName),new AdException(description, message, caused));
+            _rewardedAdListener?.OnRewardedShowFailed(new AdPayload(placementName),
+                new AdException(description, message, caused));
         }
 
         [MonoPInvokeCallback(typeof(RewardedVideoCallbacks))]
@@ -192,9 +198,19 @@ namespace SspnetSDK.Platform.iOS
         }
 
         [MonoPInvokeCallback(typeof(RewardedVideoCallbacks))]
-        internal static void OnRewardedFinished(string placementName)
+        internal static void OnRewardedVideoStarted(string placementName)
         {
-            _rewardedAdListener?.OnRewardedFinished(new AdPayload(placementName));
+            _rewardedAdListener?.OnRewardedVideoStarted(new AdPayload(placementName));
+        }
+
+        internal static void OnRewardedVideoCompleted(string placementName)
+        {
+            _rewardedAdListener?.OnRewardedVideoCompleted(new AdPayload(placementName));
+        }
+
+        internal static void OnUserRewarded(string placementName)
+        {
+            _rewardedAdListener?.OnUserRewarded(new AdPayload(placementName));
         }
 
         #endregion

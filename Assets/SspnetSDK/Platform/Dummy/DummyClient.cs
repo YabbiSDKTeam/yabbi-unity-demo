@@ -56,12 +56,12 @@ namespace SspnetSDK.Platform.Dummy
         {
             DebugLog("LoadAd");
         }
-        
+
         public void DestroyAd(int adType)
         {
             DebugLog("DestroyAd");
         }
-        
+
         public void DestroyAd(int adType, string placementName)
         {
             DebugLog("DestroyAd");
