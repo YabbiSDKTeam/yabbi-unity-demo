@@ -1,13 +1,13 @@
 #if UNITY_IOS
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Text.RegularExpressions;
+using SspnetSDK.Editor.InternalResources;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
-using System.IO;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
-using SspnetSDK.Editor.InternalResources;
 using UnityEngine;
 
 #pragma warning disable 618
@@ -25,6 +25,27 @@ namespace SspnetSDK.Editor.BuildUtils
     {
         private const string suffix = ".framework";
         private const string minVersionToDisableBitcode = "14.0";
+
+        private static readonly string[] frameworkList =
+        {
+            "CoreLocation",
+            "SafariServices",
+            "UIKit",
+            "WebKit"
+        };
+
+        private static readonly string[] weakFrameworkList =
+        {
+            "AppTrackingTransparency"
+        };
+
+        private static readonly string[] platformLibs =
+        {
+            "libc++.dylib",
+            "libz.dylib",
+            "libsqlite3.dylib",
+            "libxml2.2.dylib"
+        };
 
         [PostProcessBuild(41)]
         public static void updateInfoPlist(BuildTarget buildTarget, string buildPath)
@@ -131,27 +152,6 @@ namespace SspnetSDK.Editor.BuildUtils
                 writer.Close();
             }
         }
-
-        private static readonly string[] frameworkList =
-        {
-            "CoreLocation",
-            "SafariServices",
-            "UIKit",
-            "WebKit"
-        };
-
-        private static readonly string[] weakFrameworkList =
-        {
-            "AppTrackingTransparency"
-        };
-
-        private static readonly string[] platformLibs =
-        {
-            "libc++.dylib",
-            "libz.dylib",
-            "libsqlite3.dylib",
-            "libxml2.2.dylib"
-        };
 
         public static void PrepareProject(string buildPath)
         {

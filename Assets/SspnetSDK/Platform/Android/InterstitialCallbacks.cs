@@ -8,7 +8,7 @@ namespace SspnetSDK.Platform.Android
     {
         private readonly IInterstitialAdListener _listener;
 
-        internal InterstitialCallbacks(IInterstitialAdListener listener) : base(AdsConstants
+        internal InterstitialCallbacks(IInterstitialAdListener listener) : base(AndroidConstants
             .InterstitialListener)
         {
             _listener = listener;

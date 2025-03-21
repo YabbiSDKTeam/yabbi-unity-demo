@@ -5,7 +5,7 @@
 #import <SspnetCore/SspnetCore-Swift.h>
 #import "InterstitialDelegate.h"
 #import "RewardedDelegate.h"
-
+#import "BannerDelegate.h"
 
 UIViewController *SspnetRootViewController(void) {
 #if defined(__has_include) && __has_include("UnityAppController.h")
@@ -82,12 +82,12 @@ NSString* SspnetGetSdkVersion(void) {
 
 static InterstitialDelegate *InterstitialDelegateInstance;
 void SspnetSetInterstitialDelegate(
-                                  InterstitialCallbacks onInterstitialLoaded,
-                                  InterstitialFailCallbacks onInterstitialLoadFailed,
-                                  InterstitialCallbacks onInterstitialShown,
-                                  InterstitialFailCallbacks onRewardedVideoShownFailed,
-                                  InterstitialCallbacks onInterstitialClosed
-                                  ) {
+                                   InterstitialCallbacks onInterstitialLoaded,
+                                   InterstitialFailCallbacks onInterstitialLoadFailed,
+                                   InterstitialCallbacks onInterstitialShown,
+                                   InterstitialFailCallbacks onRewardedVideoShownFailed,
+                                   InterstitialCallbacks onInterstitialClosed
+                                   ) {
     
     InterstitialDelegateInstance = [InterstitialDelegate new];
     
@@ -103,15 +103,15 @@ void SspnetSetInterstitialDelegate(
 
 static RewardedDelegate *RewardedVideoDelegateInstance;
 void SspnetSetRewardedDelegate(
-                              RewardedVideoCallbacks onRewardedVideoLoaded,
-                              RewardedVideoFailCallbacks onRewardedVideoLoadFailed,
-                              RewardedVideoCallbacks onRewardedVideoShown,
-                              RewardedVideoFailCallbacks onRewardedVideoShownFailed,
-                              RewardedVideoCallbacks onRewardedVideoClosed,
-                              RewardedVideoCallbacks onRewardedVideoStarted,
-                              RewardedVideoCallbacks onRewardedVideoCompleted,
-                              RewardedVideoCallbacks onRewardedVideoUserRewarded
-                              ) {
+                               RewardedVideoCallbacks onRewardedVideoLoaded,
+                               RewardedVideoFailCallbacks onRewardedVideoLoadFailed,
+                               RewardedVideoCallbacks onRewardedVideoShown,
+                               RewardedVideoFailCallbacks onRewardedVideoShownFailed,
+                               RewardedVideoCallbacks onRewardedVideoClosed,
+                               RewardedVideoCallbacks onRewardedVideoStarted,
+                               RewardedVideoCallbacks onRewardedVideoCompleted,
+                               RewardedVideoCallbacks onRewardedVideoUserRewarded
+                               ) {
     
     RewardedVideoDelegateInstance = [RewardedDelegate new];
     
@@ -125,4 +125,31 @@ void SspnetSetRewardedDelegate(
     RewardedVideoDelegateInstance.onRewardedVideoUserRewardedCallback = onRewardedVideoUserRewarded;
     
     [SspnetCoreSDK setRewardedDelegate:RewardedVideoDelegateInstance];
+}
+
+static BannerDelegate *BannerDelegateInstance;
+void SspnetSetBannerDelegate(
+                             BannerCallbacks onBannerLoaded,
+                             BannerFailCallbacks onBannerLoadFailed,
+                             BannerCallbacks onBannerShown,
+                             BannerFailCallbacks onBannerShowFailed,
+                             BannerCallbacks onBannerClosed,
+                             BannerCallbacks onBannerImpression
+                             ) {
+    
+    BannerDelegateInstance = [BannerDelegate new];
+    
+    BannerDelegateInstance.onBannerLoadedCallback = onBannerLoaded;
+    BannerDelegateInstance.onBannerLoadFailedCallback = onBannerLoadFailed;
+    BannerDelegateInstance.onBannerShownCallback = onBannerShown;
+    BannerDelegateInstance.onBannerShowFailedCallback = onBannerShowFailed;
+    BannerDelegateInstance.onBannerClosedCallback = onBannerClosed;
+    BannerDelegateInstance.onBannerImpressionCallback = onBannerImpression;
+    
+    [SspnetCoreSDK setBannerDelegate:BannerDelegateInstance];
+}
+
+void SspneSetCustomBannerSettings(BOOL showCloseButton){
+    UnfiledBannerSettings *settings = [[UnfiledBannerSettings alloc] initWithShowCloseButton:showCloseButton];
+    [SspnetCoreSDK setBannerCustomSettings:settings];
 }

@@ -1,20 +1,14 @@
 #if UNITY_ANDROID || UNITY_EDITOR
-using System;
+#if UNITY_2018_1_OR_NEWER
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Xml;
-using System.Xml.Linq;
 using SspnetSDK.Editor.InternalResources;
 using UnityEditor;
-using UnityEditor.Android;
 using UnityEditor.Build;
-#if UNITY_2018_1_OR_NEWER
 using UnityEditor.Build.Reporting;
-using UnityEngine.Android;
-#endif
 using UnityEngine;
+#endif
 
 
 namespace SspnetSDK.Editor.BuildUtils
@@ -171,9 +165,9 @@ namespace SspnetSDK.Editor.BuildUtils
 
     internal class AndroidXmlDocument : XmlDocument
     {
-        private readonly string mPath;
         protected readonly string AndroidXmlNamespace = "http://schemas.android.com/apk/res/android";
         protected readonly string AndroidXmlToolsNamespace = "http://schemas.android.com/tools";
+        private readonly string mPath;
 
         protected AndroidXmlDocument(string path)
         {

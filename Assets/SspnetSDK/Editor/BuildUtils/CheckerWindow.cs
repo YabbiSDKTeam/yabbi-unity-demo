@@ -7,7 +7,15 @@ namespace SspnetSDK.Editor.BuildUtils
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class FixProblemInstruction
     {
+        private readonly string desc;
+        private readonly bool isAutoresolvePossible;
         private bool _checkedForResolve;
+
+        public FixProblemInstruction(string description, bool autoresolve)
+        {
+            desc = description;
+            isAutoresolvePossible = autoresolve;
+        }
 
         public bool checkedForResolve
         {
@@ -16,15 +24,6 @@ namespace SspnetSDK.Editor.BuildUtils
             {
                 if (isAutoresolvePossible) _checkedForResolve = value;
             }
-        }
-
-        private readonly string desc;
-        private readonly bool isAutoresolvePossible;
-
-        public FixProblemInstruction(string description, bool autoresolve)
-        {
-            desc = description;
-            isAutoresolvePossible = autoresolve;
         }
 
         public string getDescription()

@@ -8,7 +8,7 @@ namespace SspnetSDK.Platform.Android
     {
         private readonly IInitializationListener _listener;
 
-        internal InitializationCallbacks(IInitializationListener listener) : base(AdsConstants
+        internal InitializationCallbacks(IInitializationListener listener) : base(AndroidConstants
             .InitializationListener)
         {
             _listener = listener;

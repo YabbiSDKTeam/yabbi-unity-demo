@@ -1,19 +1,19 @@
 #if UNITY_2018_1_OR_NEWER
 using System;
-using System.IO;
-using System.Net;
-using System.Linq;
-using System.Text;
 using System.Collections;
-using UnityEditor;
-using UnityEngine;
-using File = UnityEngine.Windows.File;
-using UnityEngine.Networking;
-using SspnetSDK.Editor.Models;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
 using marijnz.EditorCoroutines;
+using SspnetSDK.Editor.Models;
 using SspnetSDK.Editor.Unfiled;
 using SspnetSDK.Editor.Utils;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.Networking;
 using static System.String;
+using File = UnityEngine.Windows.File;
 
 #pragma warning disable 618
 
@@ -23,49 +23,19 @@ namespace SspnetSDK.Editor.Windows
 {
     public class SspnetAdapterManager : GUIWindow
     {
-        #region Constants
-
-        private const string PluginVersion = "1.3.0";
-        private const string PluginRequest = "https://sdkapi.sspnet.tech/api/versions2.json";
-        private const string NetworkConfigsPath = "Assets/SspnetSDK/Editor/NetworkConfigs/";
-        private const string ExternalNetworkDependencies = "Assets/SspnetSDK/Editor/ExternalNetworkDependencies/";
-
-        #endregion
-
         private static EditorCoroutines.EditorCoroutine _coroutine;
 
-        private float _progress;
-        private float _loading;
+        private static string _pluginUrl;
         private WebClient _downloader;
-
-        private SdkInfo _sdkInfo;
+        private float _loading;
         private SdkInfo _localSdkInfo;
+
+        private float _progress;
 
 
         private Vector2 _scrollPosition;
 
-        private static string _pluginUrl;
-
-        public static void ShowWindow(string source)
-        {
-            _pluginUrl = source;
-            GetWindow(typeof(SspnetAdapterManager),
-                true, "Dependency manager");
-        }
-
-        private void OnEnable()
-        {
-            _loading = 0f;
-            _coroutine = this.StartCoroutine(GetSDKData());
-        }
-
-        protected override void UpdateWindow()
-        {
-            Reset();
-            _coroutine = this.StartCoroutine(GetSDKData());
-            GUI.enabled = true;
-            AssetDatabase.Refresh();
-        }
+        private SdkInfo _sdkInfo;
 
         protected override void Reset()
         {
@@ -89,6 +59,173 @@ namespace SspnetSDK.Editor.Windows
 
             _loading = 0f;
             _progress = 0f;
+        }
+
+        private void OnEnable()
+        {
+            _loading = 0f;
+            _coroutine = this.StartCoroutine(GetSDKData());
+        }
+
+
+        private void OnGUI()
+        {
+            if (!IsSdkInfoReady()) return;
+
+            minSize = new Vector2(700, 650);
+            maxSize = new Vector2(2000, 2000);
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, false, false);
+            GUILayout.BeginVertical();
+
+            #region Plugin
+
+            GUILayout.Space(10);
+            EditorGUILayout.LabelField("Plugin", LabelStyle, GUILayout.Height(20));
+
+            SetDependenciesHeader();
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                SetDependencyRow("Plugin", PluginVersion, _sdkInfo.unity.version,
+                    () => AddUpdatePluginActionIfCan(PluginVersion, _sdkInfo.unity.version));
+            }
+
+            #endregion
+
+            #region Android
+
+            GUILayout.Space(10);
+            EditorGUILayout.LabelField("Android", LabelStyle, GUILayout.Height(20));
+            GUILayout.Space(5);
+
+            SetDependenciesHeader();
+
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                SetDependencyRow("Core", _localSdkInfo.android.version, _sdkInfo.android.version,
+                    () => AddUpdateCoreActionIfCan(PlatformSdk.Android));
+            }
+
+
+            foreach (var adapterSdkInfo in _sdkInfo.android.networks)
+            {
+                if (_localSdkInfo == null) continue;
+                var localAdapterSdkInfoEnum = _localSdkInfo.android.networks.Where(value =>
+                        string.Equals(value?.name, adapterSdkInfo?.name, StringComparison.CurrentCultureIgnoreCase))
+                    .ToList();
+
+                if (localAdapterSdkInfoEnum.Any())
+                {
+                    var localAdapterSdkInfo = localAdapterSdkInfoEnum.First();
+                    SetDependencyRow(adapterSdkInfo.name, localAdapterSdkInfo.version, adapterSdkInfo.version,
+                        () => AddDependencyActions(localAdapterSdkInfo, adapterSdkInfo,
+                            CreateDependencyPath(adapterSdkInfo, null)));
+                    if (localAdapterSdkInfo.version == null) continue;
+                    foreach (var adapter in adapterSdkInfo.adapters)
+                    {
+                        var localExternalAdapterSdkInfoEnum = localAdapterSdkInfo.adapters.Where(value =>
+                            string.Equals(value.name.Replace(adapterSdkInfo.name, ""), adapter.name,
+                                StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+                        if (localExternalAdapterSdkInfoEnum.Any())
+                        {
+                            var localExternalAdapterSdkInfo = localExternalAdapterSdkInfoEnum.First();
+                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name,
+                                localExternalAdapterSdkInfo.version, adapter.version,
+                                () => AddDependencyActions(localExternalAdapterSdkInfo, adapter,
+                                    CreateDependencyPath(adapter, adapterSdkInfo)));
+                        }
+                        else
+                        {
+                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name, "", adapter.version,
+                                () => AddImportActionIfCan(adapter, CreateDependencyPath(adapter, adapterSdkInfo)));
+                        }
+                    }
+                }
+                else
+                {
+                    SetDependencyRow(adapterSdkInfo.name, "", adapterSdkInfo.version,
+                        () => AddImportActionIfCan(adapterSdkInfo, CreateDependencyPath(adapterSdkInfo, null)));
+                }
+            }
+
+            #endregion
+
+            #region iOS
+
+            GUILayout.Space(10);
+            EditorGUILayout.LabelField("iOS", LabelStyle, GUILayout.Height(20));
+            GUILayout.Space(5);
+
+            SetDependenciesHeader();
+
+            if (_localSdkInfo != null)
+                using (new EditorGUILayout.VerticalScope("box"))
+                {
+                    SetDependencyRow("Core", _localSdkInfo.ios.version, _sdkInfo.ios.version,
+                        () => AddUpdateCoreActionIfCan(PlatformSdk.IOS));
+                }
+
+            foreach (var adapterSdkInfo in _sdkInfo.ios.networks)
+            {
+                if (_localSdkInfo == null) continue;
+                var localAdapterSdkInfoEnum = _localSdkInfo.ios.networks.Where(value =>
+                    string.Equals(value.name, adapterSdkInfo.name, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+                if (localAdapterSdkInfoEnum.Any())
+                {
+                    var localAdapterSdkInfo = localAdapterSdkInfoEnum.First();
+                    SetDependencyRow(adapterSdkInfo.name, localAdapterSdkInfo.version, adapterSdkInfo.version,
+                        () => AddDependencyActions(localAdapterSdkInfo, adapterSdkInfo,
+                            CreateDependencyPath(adapterSdkInfo, null)));
+                    if (localAdapterSdkInfo.version == null) continue;
+                    foreach (var adapter in adapterSdkInfo.adapters)
+                    {
+                        var localExternalAdapterSdkInfoEnum = localAdapterSdkInfo.adapters.Where(value =>
+                            string.Equals(value.name.Replace(adapterSdkInfo.name, ""), adapter.name,
+                                StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+                        if (localExternalAdapterSdkInfoEnum.Any())
+                        {
+                            var localExternalAdapterSdkInfo = localExternalAdapterSdkInfoEnum.First();
+                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name,
+                                localExternalAdapterSdkInfo.version, adapter.version,
+                                () => AddDependencyActions(localExternalAdapterSdkInfo, adapter,
+                                    CreateDependencyPath(adapter, adapterSdkInfo)));
+                        }
+                        else
+                        {
+                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name, "", adapter.version,
+                                () => AddImportActionIfCan(adapter, CreateDependencyPath(adapter, adapterSdkInfo)));
+                        }
+                    }
+                }
+                else
+                {
+                    SetDependencyRow(adapterSdkInfo.name, "", adapterSdkInfo.version,
+                        () => AddImportActionIfCan(adapterSdkInfo, CreateDependencyPath(adapterSdkInfo, null)));
+                }
+            }
+
+            #endregion
+
+            GUILayout.Space(5);
+            GUILayout.EndVertical();
+            EditorGUILayout.EndScrollView();
+        }
+
+        public static void ShowWindow(string source)
+        {
+            _pluginUrl = source;
+            GetWindow(typeof(SspnetAdapterManager),
+                true, "Dependency manager");
+        }
+
+        protected override void UpdateWindow()
+        {
+            Reset();
+            _coroutine = this.StartCoroutine(GetSDKData());
+            GUI.enabled = true;
+            AssetDatabase.Refresh();
         }
 
         private IEnumerator GetSDKData()
@@ -275,152 +412,6 @@ namespace SspnetSDK.Editor.Windows
             return _sdkInfo != null && _localSdkInfo != null;
         }
 
-
-        private void OnGUI()
-        {
-            if (!IsSdkInfoReady()) return;
-
-            minSize = new Vector2(700, 650);
-            maxSize = new Vector2(2000, 2000);
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, false, false);
-            GUILayout.BeginVertical();
-
-            #region Plugin
-
-            GUILayout.Space(10);
-            EditorGUILayout.LabelField("Plugin", LabelStyle, GUILayout.Height(20));
-
-            SetDependenciesHeader();
-            using (new EditorGUILayout.VerticalScope("box"))
-            {
-                SetDependencyRow("Plugin", PluginVersion, _sdkInfo.unity.version,
-                    () => AddUpdatePluginActionIfCan(PluginVersion, _sdkInfo.unity.version));
-            }
-
-            #endregion
-
-            #region Android
-
-            GUILayout.Space(10);
-            EditorGUILayout.LabelField("Android", LabelStyle, GUILayout.Height(20));
-            GUILayout.Space(5);
-
-            SetDependenciesHeader();
-
-            using (new EditorGUILayout.VerticalScope("box"))
-            {
-                SetDependencyRow("Core", _localSdkInfo.android.version, _sdkInfo.android.version,
-                    () => AddUpdateCoreActionIfCan(PlatformSdk.Android));
-            }
-
-
-            foreach (var adapterSdkInfo in _sdkInfo.android.networks)
-            {
-                if (_localSdkInfo == null) continue;
-                var localAdapterSdkInfoEnum = _localSdkInfo.android.networks.Where(value =>
-                        string.Equals(value?.name, adapterSdkInfo?.name, StringComparison.CurrentCultureIgnoreCase))
-                    .ToList();
-
-                if (localAdapterSdkInfoEnum.Any())
-                {
-                    var localAdapterSdkInfo = localAdapterSdkInfoEnum.First();
-                    SetDependencyRow(adapterSdkInfo.name, localAdapterSdkInfo.version, adapterSdkInfo.version,
-                        () => AddDependencyActions(localAdapterSdkInfo, adapterSdkInfo,
-                            CreateDependencyPath(adapterSdkInfo, null)));
-                    if (localAdapterSdkInfo.version == null) continue;
-                    foreach (var adapter in adapterSdkInfo.adapters)
-                    {
-                        var localExternalAdapterSdkInfoEnum = localAdapterSdkInfo.adapters.Where(value =>
-                            string.Equals(value.name.Replace(adapterSdkInfo.name, ""), adapter.name,
-                                StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-                        if (localExternalAdapterSdkInfoEnum.Any())
-                        {
-                            var localExternalAdapterSdkInfo = localExternalAdapterSdkInfoEnum.First();
-                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name,
-                                localExternalAdapterSdkInfo.version, adapter.version,
-                                () => AddDependencyActions(localExternalAdapterSdkInfo, adapter,
-                                    CreateDependencyPath(adapter, adapterSdkInfo)));
-                        }
-                        else
-                        {
-                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name, "", adapter.version,
-                                () => AddImportActionIfCan(adapter, CreateDependencyPath(adapter, adapterSdkInfo)));
-                        }
-                    }
-                }
-                else
-                {
-                    SetDependencyRow(adapterSdkInfo.name, "", adapterSdkInfo.version,
-                        () => AddImportActionIfCan(adapterSdkInfo, CreateDependencyPath(adapterSdkInfo, null)));
-                }
-            }
-
-            #endregion
-
-            #region iOS
-
-            GUILayout.Space(10);
-            EditorGUILayout.LabelField("iOS", LabelStyle, GUILayout.Height(20));
-            GUILayout.Space(5);
-
-            SetDependenciesHeader();
-
-            if (_localSdkInfo != null)
-                using (new EditorGUILayout.VerticalScope("box"))
-                {
-                    SetDependencyRow("Core", _localSdkInfo.ios.version, _sdkInfo.ios.version,
-                        () => AddUpdateCoreActionIfCan(PlatformSdk.IOS));
-                }
-
-            foreach (var adapterSdkInfo in _sdkInfo.ios.networks)
-            {
-                if (_localSdkInfo == null) continue;
-                var localAdapterSdkInfoEnum = _localSdkInfo.ios.networks.Where(value =>
-                    string.Equals(value.name, adapterSdkInfo.name, StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-                if (localAdapterSdkInfoEnum.Any())
-                {
-                    var localAdapterSdkInfo = localAdapterSdkInfoEnum.First();
-                    SetDependencyRow(adapterSdkInfo.name, localAdapterSdkInfo.version, adapterSdkInfo.version,
-                        () => AddDependencyActions(localAdapterSdkInfo, adapterSdkInfo,
-                            CreateDependencyPath(adapterSdkInfo, null)));
-                    if (localAdapterSdkInfo.version == null) continue;
-                    foreach (var adapter in adapterSdkInfo.adapters)
-                    {
-                        var localExternalAdapterSdkInfoEnum = localAdapterSdkInfo.adapters.Where(value =>
-                            string.Equals(value.name.Replace(adapterSdkInfo.name, ""), adapter.name,
-                                StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-                        if (localExternalAdapterSdkInfoEnum.Any())
-                        {
-                            var localExternalAdapterSdkInfo = localExternalAdapterSdkInfoEnum.First();
-                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name,
-                                localExternalAdapterSdkInfo.version, adapter.version,
-                                () => AddDependencyActions(localExternalAdapterSdkInfo, adapter,
-                                    CreateDependencyPath(adapter, adapterSdkInfo)));
-                        }
-                        else
-                        {
-                            SetDependencyRow(adapterSdkInfo.name + "-" + adapter.name, "", adapter.version,
-                                () => AddImportActionIfCan(adapter, CreateDependencyPath(adapter, adapterSdkInfo)));
-                        }
-                    }
-                }
-                else
-                {
-                    SetDependencyRow(adapterSdkInfo.name, "", adapterSdkInfo.version,
-                        () => AddImportActionIfCan(adapterSdkInfo, CreateDependencyPath(adapterSdkInfo, null)));
-                }
-            }
-
-            #endregion
-
-            GUILayout.Space(5);
-            GUILayout.EndVertical();
-            EditorGUILayout.EndScrollView();
-        }
-
         private static string CreateDependencyPath(AdapterSdkInfo adapterSdkInfo, AdapterSdkInfo parentSdkInfo)
         {
             if (parentSdkInfo == null)
@@ -517,6 +508,15 @@ namespace SspnetSDK.Editor.Windows
             else
                 Debug.Log("Download terminated.");
         }
+
+        #region Constants
+
+        private const string PluginVersion = "1.4.0";
+        private const string PluginRequest = "https://sdkapi.sspnet.tech/api/versions2.json";
+        private const string NetworkConfigsPath = "Assets/SspnetSDK/Editor/NetworkConfigs/";
+        private const string ExternalNetworkDependencies = "Assets/SspnetSDK/Editor/ExternalNetworkDependencies/";
+
+        #endregion
     }
 }
 

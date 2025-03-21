@@ -1,14 +1,9 @@
 #pragma warning disable 612
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
+using SspnetSDK.Editor.InternalResources;
 using UnityEditor;
 using UnityEngine;
-using SspnetSDK.Editor.InternalResources;
-using SspnetSDK.Editor.Models;
 
 #pragma warning disable 618
 
@@ -23,11 +18,6 @@ namespace SspnetSDK.Editor.Utils
 
 
         private static List<string> SKAdNetworkIdentifiers = new();
-
-        public static void ShowInternalSettings()
-        {
-            GetWindowWithRect(typeof(SspnetInternalSettings), new Rect(0, 0, 650, 200), true, "SDK Settings");
-        }
 
         private void OnGUI()
         {
@@ -110,6 +100,11 @@ namespace SspnetSDK.Editor.Utils
             #endregion
 
             SspnetSettings.Instance.SaveAsync();
+        }
+
+        public static void ShowInternalSettings()
+        {
+            GetWindowWithRect(typeof(SspnetInternalSettings), new Rect(0, 0, 650, 200), true, "SDK Settings");
         }
 
         // private void GetSkaNetworkIds()

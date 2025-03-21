@@ -12,6 +12,11 @@ namespace SspnetSDK.Platform.iOS
 
     internal delegate void RewardedVideoFailCallbacks(string placementName, string description, string message,
         string caused);
+    
+    internal delegate void BannerCallbacks(string placementName);
+
+    internal delegate void BannerFailCallbacks(string placementName, string description, string message,
+        string caused);
 
     internal delegate void UnityBackgroundCallback(string description, string message, string caused);
 
@@ -78,6 +83,19 @@ namespace SspnetSDK.Platform.iOS
             RewardedVideoCallbacks onVideoCompleted,
             RewardedVideoCallbacks onUserRewarded
         );
+
+        [DllImport("__Internal")]
+        internal static extern void SspnetSetBannerDelegate(
+            BannerCallbacks onLoaded,
+            BannerFailCallbacks onLoadedFailed,
+            BannerCallbacks onShown,
+            BannerFailCallbacks onShownFailed,
+            BannerCallbacks onClosed,
+            BannerCallbacks onImpression
+        );
+        
+        [DllImport("__Internal")]
+        internal static extern void SspneSetCustomBannerSettings(bool showCloseButton);
 
         #endregion
     }

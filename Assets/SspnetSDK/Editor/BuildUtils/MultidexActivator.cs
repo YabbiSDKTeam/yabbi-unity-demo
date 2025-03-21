@@ -1,54 +1,17 @@
-﻿using System.Text.RegularExpressions;
-using UnityEngine;
-using UnityEditor;
-using System.IO;
-using System;
-using System.Xml;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Xml;
+using UnityEditor;
+using UnityEngine;
 
 namespace SspnetSDK.Editor.BuildUtils
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class MultidexActivator : CheckingStep
     {
-        #region Constants
-
-        //Templates in Unity Editor Data folder
-        private const string gradleDefaultTemplatePath = "PlaybackEngines/AndroidPlayer/Tools/GradleTemplates";
-        public const string manifestDefaultTemplatePath = "PlaybackEngines/AndroidPlayer/Apk/AndroidManifest.xml";
-
-        //Paths without leading Assets folder
-        public const string androidPluginsPath = "Plugins/Android";
-        public const string gradleTemplateName = "mainTemplate.gradle";
-        public const string manifestTemplateName = "AndroidManifest.xml";
-        public const string sspnetTemplatesPath = "Sspnet/InternalResources";
-        private const string sspnetDexesPath = "Assets/Plugins/Android/sspnet/assets/dex";
-
-        //Gradle search lines
-        public const string GRADLE_GOOGLE_REPOSITORY = "google()";
-        public const string GRADLE_GOOGLE_REPOSITORY_COMPAT = "maven { url \"https://maven.google.com\" }";
-        public const string GRADLE_DEPENDENCIES = "**DEPS**";
-        public const string GRADLE_APP_ID = "**APPLICATIONID**";
-        public const string GRADLE_USE_PROGUARD = "useProguard";
-        public const string GRADLE_MULTIDEX_DEPENDENCY_WO_VERSION = "androidx.multidex:multidex:";
-        public const string GRAFLE_DEFAULT_CONFIG = "defaultConfig";
-        public const string COMPILE_OPTIONS = "compileOptions {";
-        public const string GRADLE_JAVA_VERSION_1_8 = "JavaVersion.VERSION_1_8";
-        public const string GRADLE_SOURCE_CAPABILITY = "sourceCompatibility ";
-        public const string GRADLE_TARGET_CAPATILITY = "targetCompatibility ";
-
-        //Gradle add lines
-        public const string GRADLE_COMPILE = "compile ";
-        public const string GRADLE_IMPLEMENTATION = "implementation ";
-        public const string GRADLE_MULTIDEX_DEPENDENCY = "'androidx.multidex:multidex:2.0.1'";
-        public const string GRADLE_MULTIDEX_ENABLE = "multiDexEnabled true";
-
-        //Manifest add lines
-        public const string manifestMutlidexApp = "androidx.multidex.MultiDexApplication";
-
-        #endregion
-
         public override string getName()
         {
             return "Android Multidex Settings";
@@ -197,17 +160,54 @@ namespace SspnetSDK.Editor.BuildUtils
 
             return defaultGradleTemplateFullName;
         }
+
+        #region Constants
+
+        //Templates in Unity Editor Data folder
+        private const string gradleDefaultTemplatePath = "PlaybackEngines/AndroidPlayer/Tools/GradleTemplates";
+        public const string manifestDefaultTemplatePath = "PlaybackEngines/AndroidPlayer/Apk/AndroidManifest.xml";
+
+        //Paths without leading Assets folder
+        public const string androidPluginsPath = "Plugins/Android";
+        public const string gradleTemplateName = "mainTemplate.gradle";
+        public const string manifestTemplateName = "AndroidManifest.xml";
+        public const string sspnetTemplatesPath = "Sspnet/InternalResources";
+        private const string sspnetDexesPath = "Assets/Plugins/Android/sspnet/assets/dex";
+
+        //Gradle search lines
+        public const string GRADLE_GOOGLE_REPOSITORY = "google()";
+        public const string GRADLE_GOOGLE_REPOSITORY_COMPAT = "maven { url \"https://maven.google.com\" }";
+        public const string GRADLE_DEPENDENCIES = "**DEPS**";
+        public const string GRADLE_APP_ID = "**APPLICATIONID**";
+        public const string GRADLE_USE_PROGUARD = "useProguard";
+        public const string GRADLE_MULTIDEX_DEPENDENCY_WO_VERSION = "androidx.multidex:multidex:";
+        public const string GRAFLE_DEFAULT_CONFIG = "defaultConfig";
+        public const string COMPILE_OPTIONS = "compileOptions {";
+        public const string GRADLE_JAVA_VERSION_1_8 = "JavaVersion.VERSION_1_8";
+        public const string GRADLE_SOURCE_CAPABILITY = "sourceCompatibility ";
+        public const string GRADLE_TARGET_CAPATILITY = "targetCompatibility ";
+
+        //Gradle add lines
+        public const string GRADLE_COMPILE = "compile ";
+        public const string GRADLE_IMPLEMENTATION = "implementation ";
+        public const string GRADLE_MULTIDEX_DEPENDENCY = "'androidx.multidex:multidex:2.0.1'";
+        public const string GRADLE_MULTIDEX_ENABLE = "multiDexEnabled true";
+
+        //Manifest add lines
+        public const string manifestMutlidexApp = "androidx.multidex.MultiDexApplication";
+
+        #endregion
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
     public class ImportantGradleSettings
     {
+        public readonly bool compileOptions;
+        public readonly bool deprecatedProguardPresented;
         public readonly bool googleRepositoryPresented;
         public readonly bool multidexDependencyPresented;
         public readonly bool multidexEnabled;
-        public readonly bool deprecatedProguardPresented;
-        public readonly bool compileOptions;
         public readonly bool sourceCapability;
         public readonly bool targetCapability;
         public bool defaultConfig;

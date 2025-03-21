@@ -1,13 +1,11 @@
-using SspnetSDK.ConsentManagerSDK.Unfiled;
-
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
 using YabbiSDK.ConsentManagerSDK.Platform.Android;
-#elif UNITY_IPHONE
+#elif UNITY_IPHONE && !UNITY_EDITOR
 using YabbiSDK.ConsentManagerSDK.Platform.iOS;
-
 #else
 using YabbiSDK.ConsentManagerSDK.Platform.Dummy;
 #endif
+using SspnetSDK.ConsentManagerSDK.Unfiled;
 
 
 namespace YabbiSDK.ConsentManagerSDK.Platform
@@ -16,9 +14,9 @@ namespace YabbiSDK.ConsentManagerSDK.Platform
     {
         internal static IConsentManagerClient GetConsentManagerClient()
         {
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
 			return new AndroidConsentManagerClient();
-#elif UNITY_IPHONE
+#elif UNITY_IPHONE && !UNITY_EDITOR
             return new IOSConsentManagerClient();
 #else
             return new DummyConsentManagerClient();

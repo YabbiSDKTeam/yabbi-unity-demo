@@ -20,13 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using UnityEngine;
-using System.Collections;
-using UnityEditor;
-using System.Collections.Generic;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
 // ReSharper disable All
 
@@ -37,120 +37,15 @@ namespace marijnz.EditorCoroutines
     [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
     public class EditorCoroutines
     {
-        public class EditorCoroutine
-        {
-            public ICoroutineYield currentYield = new YieldDefault();
-            public readonly IEnumerator routine;
-            public readonly string routineUniqueHash;
-            public readonly string ownerUniqueHash;
-            public readonly string MethodName = "";
-
-            public int ownerHash;
-            public string ownerType;
-            public bool finished = false;
-
-            public EditorCoroutine(IEnumerator routine, int ownerHash, string ownerType)
-            {
-                this.routine = routine;
-                this.ownerHash = ownerHash;
-                this.ownerType = ownerType;
-                ownerUniqueHash = ownerHash + "_" + ownerType;
-
-                if (routine != null)
-                {
-                    var split = routine.ToString().Split('<', '>');
-                    if (split.Length == 3)
-                    {
-                        MethodName = split[1];
-                    }
-                }
-
-                routineUniqueHash = ownerHash + "_" + ownerType + "_" + MethodName;
-            }
-
-            public EditorCoroutine(string methodName, int ownerHash, string ownerType)
-            {
-                MethodName = methodName;
-                this.ownerHash = ownerHash;
-                this.ownerType = ownerType;
-                ownerUniqueHash = ownerHash + "_" + ownerType;
-                routineUniqueHash = ownerHash + "_" + ownerType + "_" + MethodName;
-            }
-        }
-
-        public interface ICoroutineYield
-        {
-            bool IsDone(float deltaTime);
-        }
-
-        private struct YieldDefault : ICoroutineYield
-        {
-            public bool IsDone(float deltaTime)
-            {
-                return true;
-            }
-        }
-
-        private struct YieldWaitForSeconds : ICoroutineYield
-        {
-            public float timeLeft;
-
-            public bool IsDone(float deltaTime)
-            {
-                timeLeft -= deltaTime;
-                return timeLeft < 0;
-            }
-        }
-
-        private struct YieldCustomYieldInstruction : ICoroutineYield
-        {
-            public CustomYieldInstruction customYield;
-
-            public bool IsDone(float deltaTime)
-            {
-                return !customYield.keepWaiting;
-            }
-        }
-
-        private struct YieldWWW : ICoroutineYield
-        {
-            public WWW Www;
-
-            public bool IsDone(float deltaTime)
-            {
-                return Www.isDone;
-            }
-        }
-
-        private struct YieldAsync : ICoroutineYield
-        {
-            public AsyncOperation asyncOperation;
-
-            public bool IsDone(float deltaTime)
-            {
-                return asyncOperation.isDone;
-            }
-        }
-
-        private struct YieldNestedCoroutine : ICoroutineYield
-        {
-            public EditorCoroutine coroutine;
-
-            public bool IsDone(float deltaTime)
-            {
-                return coroutine.finished;
-            }
-        }
-
         private static EditorCoroutines instance;
 
         private readonly Dictionary<string, List<EditorCoroutine>> coroutineDict =
             new Dictionary<string, List<EditorCoroutine>>();
 
-        private readonly List<List<EditorCoroutine>> tempCoroutineList = new List<List<EditorCoroutine>>();
-
         private readonly Dictionary<string, Dictionary<string, EditorCoroutine>> coroutineOwnerDict =
             new Dictionary<string, Dictionary<string, EditorCoroutine>>();
+
+        private readonly List<List<EditorCoroutine>> tempCoroutineList = new List<List<EditorCoroutine>>();
 
         private DateTime previousTimeSinceStartup;
 
@@ -211,7 +106,8 @@ namespace marijnz.EditorCoroutines
         }
 
         /// <summary>
-        /// Stops all coroutines named methodName running on the passed instance.</summary>
+        ///     Stops all coroutines named methodName running on the passed instance.
+        /// </summary>
         /// <param name="methodName"> The name of the coroutine method to stop.</param>
         /// <param name="thisReference">Reference to the instance of the class containing the method.</param>
         public static void StopCoroutine(string methodName, object thisReference)
@@ -221,7 +117,8 @@ namespace marijnz.EditorCoroutines
         }
 
         /// <summary>
-        /// Stops all coroutines running on the passed instance.</summary>
+        ///     Stops all coroutines running on the passed instance.
+        /// </summary>
         /// <param name="thisReference">Reference to the instance of the class containing the method.</param>
         public static void StopAllCoroutines(object thisReference)
         {
@@ -420,6 +317,111 @@ namespace marijnz.EditorCoroutines
             var field = type.GetField(fieldName, bindFlags);
             System.Diagnostics.Debug.Assert(field != null, nameof(field) + " != null");
             return field.GetValue(instance);
+        }
+
+        public class EditorCoroutine
+        {
+            public readonly string MethodName = "";
+            public readonly string ownerUniqueHash;
+            public readonly IEnumerator routine;
+            public readonly string routineUniqueHash;
+            public ICoroutineYield currentYield = new YieldDefault();
+            public bool finished = false;
+
+            public int ownerHash;
+            public string ownerType;
+
+            public EditorCoroutine(IEnumerator routine, int ownerHash, string ownerType)
+            {
+                this.routine = routine;
+                this.ownerHash = ownerHash;
+                this.ownerType = ownerType;
+                ownerUniqueHash = ownerHash + "_" + ownerType;
+
+                if (routine != null)
+                {
+                    var split = routine.ToString().Split('<', '>');
+                    if (split.Length == 3)
+                    {
+                        MethodName = split[1];
+                    }
+                }
+
+                routineUniqueHash = ownerHash + "_" + ownerType + "_" + MethodName;
+            }
+
+            public EditorCoroutine(string methodName, int ownerHash, string ownerType)
+            {
+                MethodName = methodName;
+                this.ownerHash = ownerHash;
+                this.ownerType = ownerType;
+                ownerUniqueHash = ownerHash + "_" + ownerType;
+                routineUniqueHash = ownerHash + "_" + ownerType + "_" + MethodName;
+            }
+        }
+
+        public interface ICoroutineYield
+        {
+            bool IsDone(float deltaTime);
+        }
+
+        private struct YieldDefault : ICoroutineYield
+        {
+            public bool IsDone(float deltaTime)
+            {
+                return true;
+            }
+        }
+
+        private struct YieldWaitForSeconds : ICoroutineYield
+        {
+            public float timeLeft;
+
+            public bool IsDone(float deltaTime)
+            {
+                timeLeft -= deltaTime;
+                return timeLeft < 0;
+            }
+        }
+
+        private struct YieldCustomYieldInstruction : ICoroutineYield
+        {
+            public CustomYieldInstruction customYield;
+
+            public bool IsDone(float deltaTime)
+            {
+                return !customYield.keepWaiting;
+            }
+        }
+
+        private struct YieldWWW : ICoroutineYield
+        {
+            public WWW Www;
+
+            public bool IsDone(float deltaTime)
+            {
+                return Www.isDone;
+            }
+        }
+
+        private struct YieldAsync : ICoroutineYield
+        {
+            public AsyncOperation asyncOperation;
+
+            public bool IsDone(float deltaTime)
+            {
+                return asyncOperation.isDone;
+            }
+        }
+
+        private struct YieldNestedCoroutine : ICoroutineYield
+        {
+            public EditorCoroutine coroutine;
+
+            public bool IsDone(float deltaTime)
+            {
+                return coroutine.finished;
+            }
         }
     }
 }

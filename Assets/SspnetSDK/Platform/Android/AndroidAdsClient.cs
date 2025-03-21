@@ -11,11 +11,6 @@ namespace SspnetSDK.Platform.Android
 
         private AndroidJavaClass _nativeClass;
 
-        private AndroidJavaClass GetCoreClass()
-        {
-            return _nativeClass ??= new AndroidJavaClass(AdsConstants.SspnetCore);
-        }
-        
         public void Initialize(string publisherID, IInitializationListener listener)
         {
             GetCoreClass().CallStatic("initialize", publisherID, new InitializationCallbacks(listener));
@@ -23,23 +18,7 @@ namespace SspnetSDK.Platform.Android
 
         public bool IsInitialized()
         {
-           return GetCoreClass().CallStatic<bool>("isInitialized");
-        }
-
-        private AndroidJavaObject GetActivity()
-        {
-            if (_activity != null) return _activity;
-            var playerClass = new AndroidJavaClass(AdsConstants.UnityActivityClassName);
-            _activity = playerClass.GetStatic<AndroidJavaObject>("currentActivity");
-
-            return _activity;
-        }
-
-        private static AndroidJavaObject BoolToAndroid(bool value)
-        {
-            var boleanClass = new AndroidJavaClass("java.lang.Boolean");
-            var boolean = boleanClass.CallStatic<AndroidJavaObject>("valueOf", value);
-            return boolean;
+            return GetCoreClass().CallStatic<bool>("isInitialized");
         }
 
         public bool CanLoadAd(int adType, string placementName)
@@ -49,7 +28,7 @@ namespace SspnetSDK.Platform.Android
 
         public void ShowAd(int adType, string placementName)
         {
-            GetCoreClass().CallStatic("showAd",GetActivity(), adType, placementName);
+            GetCoreClass().CallStatic("showAd", GetActivity(), adType, placementName);
         }
 
         public bool IsAdLoaded(int adType, string placementName)
@@ -59,14 +38,14 @@ namespace SspnetSDK.Platform.Android
 
         public void LoadAd(int adType, string placementName)
         {
-            GetCoreClass().CallStatic("loadAd",GetActivity(), adType, placementName);
+            GetCoreClass().CallStatic("loadAd", GetActivity(), adType, placementName);
         }
 
         public void DestroyAd(int adType, string placementName)
         {
             GetCoreClass().CallStatic("destroyAd", placementName);
         }
-        
+
         public void DestroyAd(int adType)
         {
             GetCoreClass().CallStatic("destroyAd", adType);
@@ -81,6 +60,28 @@ namespace SspnetSDK.Platform.Android
         {
             GetCoreClass().CallStatic("setRewardedListener", new RewardedCallbacks(adListener));
         }
+
+        public void SetBannerCallbacks(IBannerAdListener adListener)
+        {
+            GetCoreClass().CallStatic("setBannerListener", new BannerCallbacks(adListener));
+        }
+
+        public void SetBannerCustomSettings(BannerSettings settings)
+        {
+            using var bannerSettingsClass = new AndroidJavaClass(AndroidConstants.BannerSettings);
+            // Получаем Builder через статический метод builder()
+            var builder = bannerSettingsClass.CallStatic<AndroidJavaObject>("builder");
+
+            // Устанавливаем необходимые параметры
+            builder.Call<AndroidJavaObject>("setShowCloseButton", settings.ShowCloseButton);
+
+            // Создаем нативный объект BannerSettings через build()
+            var nativeBannerSettings = builder.Call<AndroidJavaObject>("build");
+
+            // Передаем созданный объект в основной класс
+            GetCoreClass().CallStatic("setBannerCustomSettings", nativeBannerSettings);
+        }
+
 
         public void SetCustomParams(string key, string value)
         {
@@ -105,6 +106,27 @@ namespace SspnetSDK.Platform.Android
         public string GetSdkVersion()
         {
             return GetCoreClass().CallStatic<string>("getSdkVersion");
+        }
+
+        private AndroidJavaClass GetCoreClass()
+        {
+            return _nativeClass ??= new AndroidJavaClass(AndroidConstants.SspnetCore);
+        }
+
+        private AndroidJavaObject GetActivity()
+        {
+            if (_activity != null) return _activity;
+            var playerClass = new AndroidJavaClass(AndroidConstants.UnityActivityClassName);
+            _activity = playerClass.GetStatic<AndroidJavaObject>("currentActivity");
+
+            return _activity;
+        }
+
+        private static AndroidJavaObject BoolToAndroid(bool value)
+        {
+            var boleanClass = new AndroidJavaClass("java.lang.Boolean");
+            var boolean = boleanClass.CallStatic<AndroidJavaObject>("valueOf", value);
+            return boolean;
         }
     }
 }

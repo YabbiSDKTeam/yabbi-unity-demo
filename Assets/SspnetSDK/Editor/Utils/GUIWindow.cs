@@ -14,10 +14,10 @@ namespace SspnetSDK.Editor.Utils
 {
     public abstract class GUIWindow : EditorWindow
     {
-        protected GUIStyle LabelStyle;
+        protected readonly GUILayoutOption ButtontWidth = GUILayout.Width(60);
         private GUIStyle _headerInfoStyle;
         private GUIStyle _packageInfoStyle;
-        protected readonly GUILayoutOption ButtontWidth = GUILayout.Width(60);
+        protected GUIStyle LabelStyle;
 
         protected void Awake()
         {
@@ -42,6 +42,8 @@ namespace SspnetSDK.Editor.Utils
 
             Reset();
         }
+
+        protected abstract void Reset();
 
         protected void SetDependenciesHeader()
         {
@@ -116,8 +118,6 @@ namespace SspnetSDK.Editor.Utils
         }
 
         protected abstract void UpdateWindow();
-
-        protected abstract void Reset();
 
 
         protected abstract IEnumerator DownloadUnityPlugin();

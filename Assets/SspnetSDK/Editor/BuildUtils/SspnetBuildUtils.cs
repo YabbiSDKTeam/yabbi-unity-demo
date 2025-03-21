@@ -1,12 +1,13 @@
-using UnityEditor;
-using UnityEngine;
-using System.Reflection;
 using System;
-using System.Xml;
-using System.Text.RegularExpressions;
-using System.IO;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Xml;
+using UnityEditor;
+using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace SspnetSDK.Editor.BuildUtils
 {
@@ -23,13 +24,6 @@ namespace SspnetSDK.Editor.BuildUtils
 
         public const string NSUserTrackingUsageDescription =
             "This identifier will be used to deliver personalized ads to you";
-
-        #region Optional Android Permissions
-
-        public const string CoarseLocation = "android.permission.ACCESS_COARSE_LOCATION";
-        public const string FineLocation = "android.permission.ACCESS_FINE_LOCATION";
-
-        #endregion
 
         public static int CompareVersions(string v1, string v2)
         {
@@ -60,7 +54,7 @@ namespace SspnetSDK.Editor.BuildUtils
             }
             catch (Exception e)
             {
-                UnityEngine.Debug.LogError(e.Message);
+                Debug.LogError(e.Message);
             }
 
             return profilerOutput;
@@ -153,10 +147,17 @@ namespace SspnetSDK.Editor.BuildUtils
             }
             catch (Exception e)
             {
-                UnityEngine.Debug.LogError(e.Message);
+                Debug.LogError(e.Message);
             }
 
             return profilerOutput;
         }
+
+        #region Optional Android Permissions
+
+        public const string CoarseLocation = "android.permission.ACCESS_COARSE_LOCATION";
+        public const string FineLocation = "android.permission.ACCESS_FINE_LOCATION";
+
+        #endregion
     }
 }

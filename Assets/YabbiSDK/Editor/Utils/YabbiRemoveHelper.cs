@@ -1,7 +1,7 @@
 #pragma warning disable 0649
-using UnityEditor;
 using System.Diagnostics.CodeAnalysis;
 using SspnetSDK.Editor.Utils;
+using UnityEditor;
 
 namespace YabbiSDK.Editor.Utils
 {

@@ -8,7 +8,7 @@ namespace SspnetSDK.Platform.Android
     {
         private readonly IRewardedAdListener _listener;
 
-        internal RewardedCallbacks(IRewardedAdListener listener) : base(AdsConstants.RewardedListener)
+        internal RewardedCallbacks(IRewardedAdListener listener) : base(AndroidConstants.RewardedListener)
         {
             _listener = listener;
         }

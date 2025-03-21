@@ -6,18 +6,9 @@ namespace SspnetSDK.Platform.iOS
 {
     public class IOSAdsClient : IAdsClient
     {
-        #region Singleton
-
-        private IOSAdsClient()
-        {
-        }
-
-        public static IOSAdsClient Instance { get; } = new();
-
-        #endregion
-
         private static IInterstitialAdListener _interstitialAdListener;
         private static IRewardedAdListener _rewardedAdListener;
+        private static IBannerAdListener _bannerListener;
         private static IInitializationListener _initializationListener;
 
 
@@ -89,6 +80,24 @@ namespace SspnetSDK.Platform.iOS
             );
         }
 
+        public void SetBannerCallbacks(IBannerAdListener adListener)
+        {
+            _bannerListener = adListener;
+            ObjCBridge.SspnetSetBannerDelegate(
+                OnBannerLoaded,
+                OnBannerLoadFailed,
+                OnBannerShown,
+                OnBannerShowFailed,
+                OnBannerClosed,
+                OnBannerImpression
+            );
+        }
+
+        public void SetBannerCustomSettings(BannerSettings settings)
+        {
+            ObjCBridge.SspneSetCustomBannerSettings(settings.ShowCloseButton);
+        }
+
         public void SetCustomParams(string key, string value)
         {
             ObjCBridge.SspnetSetCustomParams(key, value);
@@ -122,6 +131,16 @@ namespace SspnetSDK.Platform.iOS
             else
                 _initializationListener?.OnInitializeFailed(new AdException(description, message, caused));
         }
+
+        #region Singleton
+
+        private IOSAdsClient()
+        {
+        }
+
+        public static IOSAdsClient Instance { get; } = new();
+
+        #endregion
 
         #region Intestital Delegate
 
@@ -203,14 +222,60 @@ namespace SspnetSDK.Platform.iOS
             _rewardedAdListener?.OnRewardedVideoStarted(new AdPayload(placementName));
         }
 
+        [MonoPInvokeCallback(typeof(RewardedVideoCallbacks))]
         internal static void OnRewardedVideoCompleted(string placementName)
         {
             _rewardedAdListener?.OnRewardedVideoCompleted(new AdPayload(placementName));
         }
 
+        [MonoPInvokeCallback(typeof(RewardedVideoCallbacks))]
         internal static void OnUserRewarded(string placementName)
         {
             _rewardedAdListener?.OnUserRewarded(new AdPayload(placementName));
+        }
+
+        #endregion
+        
+        #region Banner Delegate
+
+        [MonoPInvokeCallback(typeof(BannerCallbacks))]
+        internal static void OnBannerLoaded(string placementName)
+        {
+            _bannerListener?.OnBannerLoaded(new AdPayload(placementName));
+        }
+
+        [MonoPInvokeCallback(typeof(BannerFailCallbacks))]
+        internal static void OnBannerLoadFailed(string placementName, string description, string message,
+            string caused)
+        {
+            _bannerListener?.OnBannerLoadFailed(new AdPayload(placementName),
+                new AdException(description, message, caused));
+        }
+
+        [MonoPInvokeCallback(typeof(BannerCallbacks))]
+        internal static void OnBannerShown(string placementName)
+        {
+            _bannerListener?.OnBannerShown(new AdPayload(placementName));
+        }
+
+        [MonoPInvokeCallback(typeof(BannerFailCallbacks))]
+        internal static void OnBannerShowFailed(string placementName, string description, string message,
+            string caused)
+        {
+            _bannerListener?.OnBannerShowFailed(new AdPayload(placementName),
+                new AdException(description, message, caused));
+        }
+
+        [MonoPInvokeCallback(typeof(BannerCallbacks))]
+        internal static void OnBannerClosed(string placementName)
+        {
+            _bannerListener?.OnBannerClosed(new AdPayload(placementName));
+        }
+
+        [MonoPInvokeCallback(typeof(BannerCallbacks))]
+        internal static void OnBannerImpression(string placementName)
+        {
+            _bannerListener?.OnBannerImpression(new AdPayload(placementName));
         }
 
         #endregion

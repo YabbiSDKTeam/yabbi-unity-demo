@@ -6,6 +6,6 @@
         </repositories>
     </androidPackages>
     <iosPods>
-        <iosPod name='YabbiConsentManager' version="1.0.0" minTargetSdk='13.0'/>
+        <iosPod name='YabbiConsentManager' version="1.0.3" minTargetSdk='13.0'/>
     </iosPods>
 </dependencies>

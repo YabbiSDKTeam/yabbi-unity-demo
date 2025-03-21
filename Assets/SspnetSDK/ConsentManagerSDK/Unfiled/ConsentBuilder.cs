@@ -6,8 +6,8 @@ namespace SspnetSDK.ConsentManagerSDK.Unfiled
     {
         [CanBeNull] private string _appName;
         [CanBeNull] private string _bundle;
-        [CanBeNull] private string _policyUrl;
         private bool _isGdpr;
+        [CanBeNull] private string _policyUrl;
 
         public ConsentBuilder AppendBundle(string value)
         {

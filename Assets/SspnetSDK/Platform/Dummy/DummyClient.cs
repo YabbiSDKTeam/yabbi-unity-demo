@@ -5,6 +5,16 @@ namespace SspnetSDK.Platform.Dummy
 {
     public class DummyClient : IAdsClient
     {
+        #region Debug
+
+        private static void DebugLog(string method)
+        {
+            Debug.Log(
+                $"Call to {method} on not supported platform. To test advertising, install your application on the Android/iOS device.");
+        }
+
+        #endregion
+
         #region Sspnet
 
         public void Initialize(string publisherID, IInitializationListener listener)
@@ -77,6 +87,16 @@ namespace SspnetSDK.Platform.Dummy
             DebugLog("SetRewardedCallbacks");
         }
 
+        public void SetBannerCallbacks(IBannerAdListener adListener)
+        {
+            DebugLog("SetBannerCallbacks");
+        }
+
+        public void SetBannerCustomSettings(BannerSettings settings)
+        {
+            DebugLog("SetBannerCustomSettings");
+        }
+
         public void SetCustomParams(string key, string value)
         {
             DebugLog("setCustomParams");
@@ -102,16 +122,6 @@ namespace SspnetSDK.Platform.Dummy
         {
             DebugLog("HasUserConsent");
             return "";
-        }
-
-        #endregion
-
-        #region Debug
-
-        private static void DebugLog(string method)
-        {
-            Debug.Log(
-                $"Call to {method} on not supported platform. To test advertising, install your application on the Android/iOS device.");
         }
 
         #endregion

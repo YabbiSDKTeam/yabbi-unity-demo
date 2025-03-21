@@ -73,9 +73,9 @@ namespace SspnetSDK.Editor.Unfiled
 
         private class Reader
         {
+            private readonly XmlTextReader _reader;
             private int _lineNumber;
             private int _linePosition;
-            private readonly XmlTextReader _reader;
 
             public Reader(XmlTextReader xmlReader)
             {
