@@ -5,7 +5,19 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scenes/Yabbi/YabbiDemoScence.unity
+    guid: d3e2fe91b7b374e07a8c621a159f8421
+  - enabled: 1
+    path: Assets/Scenes/Yabbi/InterstitialScence.unity
+    guid: a08232e612f2d4df6acc1da357ef0452
+  - enabled: 1
+    path: Assets/Scenes/Yabbi/RewardedScence.unity
+    guid: 44109391d9c604a11bd1ab604999e0ec
+  - enabled: 1
+    path: Assets/Scenes/Yabbi/BannerScence.unity
+    guid: 1966ab96d5aab410c89ad6fa6f3ac190
+  - enabled: 1
+    path: Assets/Scenes/Yabbi/ConsentManagerScence.unity
+    guid: 6317ef17fdcab460dbe437bceedda842
   m_configObjects: {}
