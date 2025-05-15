@@ -43,7 +43,7 @@ namespace SspnetSDK.Platform.Android
 
         public void DestroyAd(int adType, string placementName)
         {
-            GetCoreClass().CallStatic("destroyAd", placementName);
+            GetCoreClass().CallStatic("destroyAd", adType, placementName);
         }
 
         public void DestroyAd(int adType)
@@ -74,6 +74,8 @@ namespace SspnetSDK.Platform.Android
 
             // Устанавливаем необходимые параметры
             builder.Call<AndroidJavaObject>("setShowCloseButton", settings.ShowCloseButton);
+            builder.Call<AndroidJavaObject>("setBannerPosition", settings.BannerPosition);
+            builder.Call<AndroidJavaObject>("setRefreshIntervalSeconds", settings.RefreshIntervalSeconds);
 
             // Создаем нативный объект BannerSettings через build()
             var nativeBannerSettings = builder.Call<AndroidJavaObject>("build");

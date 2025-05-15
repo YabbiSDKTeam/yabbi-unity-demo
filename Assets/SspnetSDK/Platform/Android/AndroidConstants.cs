@@ -8,7 +8,7 @@ namespace SspnetSDK.Platform.Android
         public const string InitializationListener = "sspnet.tech.core.InitializationListener";
         public const string RewardedListener = "sspnet.tech.core.RewardedListener";
         public const string BannerListener = "sspnet.tech.core.BannerListener";
-        public const string BannerSettings = "sspnet.tech.unfiled.BannerSettings";
+        public const string BannerSettings = "sspnet.tech.core.BannerSettings";
         public const string SspnetCore = "sspnet.tech.core.SspnetCore";
     }
 }

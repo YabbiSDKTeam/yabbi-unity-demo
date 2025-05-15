@@ -12,7 +12,7 @@ namespace SspnetSDK.Platform.iOS
 
     internal delegate void RewardedVideoFailCallbacks(string placementName, string description, string message,
         string caused);
-    
+
     internal delegate void BannerCallbacks(string placementName);
 
     internal delegate void BannerFailCallbacks(string placementName, string description, string message,
@@ -93,9 +93,10 @@ namespace SspnetSDK.Platform.iOS
             BannerCallbacks onClosed,
             BannerCallbacks onImpression
         );
-        
+
         [DllImport("__Internal")]
-        internal static extern void SspneSetCustomBannerSettings(bool showCloseButton);
+        internal static extern void SspneSetCustomBannerSettings(bool showCloseButton, int bannerPosition,
+            int refreshIntervalSeconds);
 
         #endregion
     }

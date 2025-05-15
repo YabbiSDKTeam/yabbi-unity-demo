@@ -8,7 +8,10 @@ namespace YabbiSDK.Demo.Scripts
         private void Start()
         {
             Yabbi.SetBannerCallbacks(this);
-            Yabbi.SetBannerCustomSettings(new BannerSettings().SetShowCloseButton(true));
+            var settings = new BannerSettings()
+                .SetShowCloseButton(true)
+                .SetBannerPosition(BannerPosition.BOTTOM);
+            Yabbi.SetBannerCustomSettings(settings);
             InitClickListeners();
         }
 

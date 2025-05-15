@@ -149,7 +149,21 @@ void SspnetSetBannerDelegate(
     [SspnetCoreSDK setBannerDelegate:BannerDelegateInstance];
 }
 
-void SspneSetCustomBannerSettings(BOOL showCloseButton){
-    UnfiledBannerSettings *settings = [[UnfiledBannerSettings alloc] initWithShowCloseButton:showCloseButton];
+void SspneSetCustomBannerSettings(BOOL showCloseButton,
+                                  NSInteger bannerPositionValue,
+                                  NSInteger refreshIntervalSeconds) {
+    NSInteger pos = bannerPositionValue;
+    
+    if (pos != [UnfiledBannerPosition TOP] &&
+        pos != [UnfiledBannerPosition BOTTOM]) {
+        pos = [UnfiledBannerPosition BOTTOM];
+    }
+
+    UnfiledBannerSettings *settings =
+      [[UnfiledBannerSettings alloc]
+         initWithShowCloseButton:showCloseButton
+                    bannerPosition:pos
+            refreshIntervalSeconds:refreshIntervalSeconds];
+
     [SspnetCoreSDK setBannerCustomSettings:settings];
 }

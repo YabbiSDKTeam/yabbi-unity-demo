@@ -95,7 +95,8 @@ namespace SspnetSDK.Platform.iOS
 
         public void SetBannerCustomSettings(BannerSettings settings)
         {
-            ObjCBridge.SspneSetCustomBannerSettings(settings.ShowCloseButton);
+            ObjCBridge.SspneSetCustomBannerSettings(settings.ShowCloseButton, settings.BannerPosition,
+                settings.RefreshIntervalSeconds);
         }
 
         public void SetCustomParams(string key, string value)
@@ -235,7 +236,7 @@ namespace SspnetSDK.Platform.iOS
         }
 
         #endregion
-        
+
         #region Banner Delegate
 
         [MonoPInvokeCallback(typeof(BannerCallbacks))]
